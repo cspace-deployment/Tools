@@ -6,7 +6,6 @@ import sys
 start = time.time()
 
 args = sys.argv
-print (len(args))
 if (len(args) == 1):
     print("Need to include --prod or --dev")
     sys.exit()
