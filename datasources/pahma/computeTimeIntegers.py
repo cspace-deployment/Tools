@@ -6,9 +6,10 @@ sys.setdefaultencoding('utf-8')
 
 delim = '\t'
 
+
 def get_date_rows(row):
     date_rows = []
-    for i,r in enumerate(row):
+    for i, r in enumerate(row):
         if "_dt" in r:
             row.append(r.replace('_dt', '_i'))
             date_rows.append(i)
@@ -24,7 +25,7 @@ with open(sys.argv[2], 'wb') as f2:
     with open(sys.argv[1], 'r') as f1:
         reader = UnicodeReader(f1, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
         try:
-            for i,row in enumerate(reader):
+            for i, row in enumerate(reader):
                 if i == 0:
                     date_rows = get_date_rows(row)
                 else:
@@ -36,5 +37,3 @@ with open(sys.argv[2], 'wb') as f2:
             raise
             print 'couldnt'
             exit()
-        
-        
