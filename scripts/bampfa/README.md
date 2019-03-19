@@ -19,7 +19,8 @@ This script uses the REST API to update local persons records. In essence, it ge
 PUTting an empty XML template with just the CSID of the record is not possible, as the API checks that there are certain fields (which are required) to be filled out, thus instead of grepping for these required fields, the script safely fetches and puts back the same data it received.
 
 #### Output:
-As the script is running, it prints the url it is trying to GET/PUT. Upon terminating, it generates 3 files:
-`failed_gets.txt`: A file containing all the failed GET requests. Followed by the total number of these failures 
-`failed_puts.txt`: A file containing all the failed PUT requests. Followed by the total number of these failures 
-`successful_calls.txt`: A file containg all of the successful calls to the REST API.
+- As the script is running, it prints the url it is trying to GET/PUT. 
+- Upon terminating, it generates 3 files:
+    - `failed_gets.txt`: A file containing all the failed GET requests. Followed by the total number of these failures 
+    - `failed_puts.txt`: A file containing all the failed PUT requests. Followed by the total number of these failures 
+    - `successful_calls.txt`: A file containg all of the successful calls to the REST API.
