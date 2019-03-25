@@ -10,23 +10,10 @@ REPOSITORIES=(services application)
 DEPLOYMENT_NAME=`csname`
 TOMCAT_DIR=$CATALINA_HOME
 OPTIND=1
-FORCE=false
-
-while getopts "f?" flag; do
-	case $flag in
-	f) FORCE=true
-	   ;;
-	esac
-done
 
 shift $((OPTIND - 1))
 
 TAG=$1
-
-if [[ $FORCE == true ]]; then
-	csdown -f
-	sleep 5
-fi
 
 if csstatus > /dev/null; then
 	echo "Collectionspace is still running!  Use csdown or -f to stop it first."
