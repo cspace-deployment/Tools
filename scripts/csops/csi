@@ -16,7 +16,7 @@ shift $((OPTIND - 1))
 TAG=$1
 
 if csstatus > /dev/null; then
-	echo "Collectionspace is still running!  Use csdown or -f to stop it first."
+	echo "Collectionspace is still running!  Use csdown to stop it first."
 	exit 1
 fi
 
