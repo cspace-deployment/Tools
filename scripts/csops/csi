@@ -25,7 +25,7 @@ TAG=$1
 
 if [[ $FORCE == true ]]; then
 	csdown -f
-	sleep 5;
+	sleep 5
 fi
 
 if csstatus > /dev/null; then
