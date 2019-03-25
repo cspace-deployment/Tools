@@ -51,9 +51,9 @@ time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-internal/update/cs
 time python evaluate.py 4solr.$TENANT.internal.csv /dev/null > counts.internal.csv &
 # get rid of intermediate files
 rm d?.csv m?.csv b?.csv media.csv metadata.csv &
-cut -f43 4solr.${TENANT}.public.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.internal.blobs.csv
-cut -f43 4solr.${TENANT}.public.csv | perl -pe 's/\r//;s/,/\n/g;s/\|/\n/g;' | grep -v 'blob_ss' | grep . | wc -l >> counts.internal.blobs.csv
-cp counts.internal.blobs.csv /tmp/$TENANT.counts.internal.csv
+cut -f43 4solr.${TENANT}.internal.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.internal.blobs.csv
+cut -f43 4solr.${TENANT}.internal.csv | perl -pe 's/\r//;s/,/\n/g;s/\|/\n/g;' | grep -v 'blob_ss' | grep . | wc -l >> counts.internal.blobs.csv
+cp counts.internal.blobs.csv /tmp/$TENANT.counts.internal.blobs.csv
 cat counts.internal.blobs.csv
 wait
 # zip up .csvs, save a bit of space on backups

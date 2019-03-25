@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# script to enable maintenence mode, see CC-402
+
+touch $HOME/.maintenance.enabled
+chmod 644 $HOME/.maintenance.enabled
+
+echo "Maintenance mode for `csname` enabled.  Use csmaintmodeoff to disable."
+echo ""

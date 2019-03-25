@@ -142,7 +142,7 @@ cat <<EOF > ~/tmp/$TOMCAT_SERVICE_NAME
 # that the following environment values will not be recognized if set:
 #   CATALINA_BASE, CATALINA_TMPDIR, TOMCAT_USER
 
-JAVA_OPTS="${config[${DEPLOYMENT_NAME}${DEV}_tomcat_java_opts]}"
+JAVA_OPTS="${config[${DEPLOYMENT_NAME}${DEV}_tomcat_java_opts]} -javaagent:/home/app_${DEPLOYMENT_NAME}/tomcat7/lib/spring-instrument-4.3.1.RELEASE.jar"
 EOF
 
 cat <<EOF > $TOMCAT_LIB_DIR/security.properties

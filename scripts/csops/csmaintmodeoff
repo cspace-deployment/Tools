@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# script to disable maintenence mode, see CC-402
+
+rm -f $HOME/.maintenance.enabled
+
+echo "Maintenance mode for `csname` disabled."
+echo ""

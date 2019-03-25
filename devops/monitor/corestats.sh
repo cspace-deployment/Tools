@@ -4,7 +4,7 @@ cp /tmp/*.counts.*.csv /var/www/static/
 #
 echo "<h2>Contents of Solr Cores</h2>" > corestats.html
 echo "<h4>`date`</h4>" >> corestats.html
-echo "<h2>Objects Public Solr Cores</h2>" > corestats.html
+echo "<h2>Objects in Public Solr Cores</h2>" >> corestats.html
 echo '
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/base.css">

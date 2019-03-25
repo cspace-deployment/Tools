@@ -1,4 +1,4 @@
-for t in bampfa botgarden pahma ucjeps
+for t in bampfa botgarden cinefiles pahma ucjeps
 do
     for d in public internal propagations locations media osteology
     do

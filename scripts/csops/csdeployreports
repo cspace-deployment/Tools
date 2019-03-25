@@ -11,13 +11,6 @@ LIB_DEST_DIR=$CATALINA_HOME/lib
 
 cd $TOOLS_DIR
 
-echo "Updating reports..."
-
-if ! git pull; then
-	echo "ERROR: Failed to pull updates"
-	exit 1
-fi
-
 echo "Deploying reports..."
 
 cp reports/$DEPLOYMENT_NAME/*.jrxml $REPORT_DIR

@@ -269,9 +269,8 @@ if [[ $deploy_services_artifacts_needed == true ]]; then
 		echo "ERROR: Failed to deploy services artifacts"
 		exit 1
 	fi
-
-	rm -r /tmp/cspace-bindings-*
-	rm -r /tmp/merged-app-config-*
+	
+	find /tmp -maxdepth 1 \( -name "cspace-bindings-*" -o -name "merged-app-config-*" \) -user ${USER} -type d -prune -exec rm -rf {} + 2> /dev/null
 fi
 
 # Deploy reports

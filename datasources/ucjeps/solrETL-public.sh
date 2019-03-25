@@ -88,6 +88,7 @@ time curl -X POST -S -s 'http://localhost:8983/solr/ucjeps-public/update/csv?com
 # while that's running, clean up, generate some stats, mail reports
 ##############################################################################
 time python evaluate.py 4solr.${TENANT}.public.csv /dev/null > counts.public.final.csv
+cp counts.public.final.csv /tmp/$TENANT.counts.public.csv
 wc -l *.csv
 # send the errors off to be dealt with
 tar -czf counts.tgz counts.*.csv
@@ -101,7 +102,7 @@ cp counts.public.blobs.csv /tmp/$TENANT.counts.public.blobs.csv
 cat counts.public.blobs.csv
 # zip up .csvs, save a bit of space on backups
 gzip -f *.csv
+wait
 # hack to zap latlong errors and load the records anyway.
 ./zapCoords.sh
-wait
 date

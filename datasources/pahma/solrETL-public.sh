@@ -177,6 +177,7 @@ time python evaluate.py 4solr.${TENANT}.public.csv /dev/null > counts.public.fin
 time python evaluate.py 4solr.${TENANT}.internal.csv /dev/null > counts.internal.final.csv &
 wait
 cp counts.public.final.csv /tmp/${TENANT}.counts.public.csv
+cp counts.internal.final.csv /tmp/${TENANT}.counts.internal.csv
 # send the errors off to be dealt with
 tar -czf counts.tgz counts*.csv
 ./make_error_report.sh | mail -a counts.tgz -s "PAHMA Solr Counts and Refresh Errors `date`" ${CONTACT}
