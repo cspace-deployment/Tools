@@ -10,23 +10,14 @@ REPOSITORIES=(services application)
 DEPLOYMENT_NAME=`csname`
 TOMCAT_DIR=$CATALINA_HOME
 OPTIND=1
-FORCE=false
-
-while getopts "f?" flag; do
-	case $flag in
-	f) FORCE=true
-	   ;;
-	esac
-done
 
 shift $((OPTIND - 1))
 
 TAG=$1
 
-if [[ $FORCE == true ]]; then
-	CSDOWN="csdown -f"
-else
-	CSDOWN="csdown"
+if csstatus > /dev/null; then
+	echo "Collectionspace is still running!  Use csdown to stop it first."
+	exit 1
 fi
 
 # Update the source code from git.
@@ -192,11 +183,6 @@ fi
 if [[ $rebuild_application_needed == true ]]; then
 	echo "Building application..."
 
-	if ! $CSDOWN; then
-		echo "ERROR: Failed to stop CollectionSpace"
-		exit 1
-	fi
-
 	cd $SOURCE_DIR/application
 
 	if ! mvn clean install -DskipTests; then
@@ -218,11 +204,6 @@ if [[ $rebuild_services_needed == true ]]; then
 	cd $SOURCE_DIR/services
 
 	echo "Deploying services..."
-
-	if ! $CSDOWN; then
-		echo "ERROR: Failed to stop CollectionSpace"
-		exit 1
-	fi
 
 	if ! ant undeploy deploy; then
 		echo "ERROR: Failed to deploy services"
@@ -283,12 +264,5 @@ fi
 # Ensure selinux context is correct
 
 restorecon -R /var/lib/tomcats/$DEPLOYMENT_NAME
-
-# Start tomcat
-
-if ! csup; then
-	echo "ERROR: Failed to start CollectionSpace"
-	exit 1
-fi
 
 echo "CollectionSpace successfully installed from $TAG"

@@ -136,14 +136,10 @@ Shows the name of the CollectionSpace service, suitable for passing to the `syst
 ### csi - install CollectionSpace
 ##### Synopsis
 ```
-csi [-f] [versionnumber]
+csi [versionnumber]
 ```
 ##### Description
-Installs the specified version of CollectionSpace. The version number must correspond to a tag in git. If no version number is specified, the most recently created tag that is appropriate for the user is used. Installation may require that the CollectionSpace server be stopped and started. If this is necessary, the `csdown` program is invoked, which will do its usual user activity check. Use the `-f` flag to force the restart even if user activity is detected.
-
-##### Options
-`-f`
-	If a CollectionSpace restart is needed, force the restart, even if user activity is detected within the required idle time. Has no effect if a restart is not needed.
+Installs the specified version of CollectionSpace. The version number must correspond to a tag in git. If no version number is specified, the most recently created tag that is appropriate for the user is used. Installation may require that the CollectionSpace server be stopped and started. If this is necessary, the `csdown` program is invoked, which will do its usual user activity check.
 
 ### cscleantemp - remove old files from the CollectionSpace server's temporary file directory
 ##### Synopsis
