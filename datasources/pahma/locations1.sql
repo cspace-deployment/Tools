@@ -1,6 +1,6 @@
 SELECT
-   h2.name as csid_s,
-   h1.name as id,
+   h2.name as object_csid_s,
+   h1.name as movement_csid_s,
    REGEXP_REPLACE(mc.currentlocation, '^.*\)''(.*)''$', '\1') AS location_s,
    REGEXP_REPLACE(ma.crate, '^.*\)''(.*)''$', '\1') AS crate_s,
    DATE(mc.locationdate)||'T19:00:00Z' AS "locationdate_dt"
