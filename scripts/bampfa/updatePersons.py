@@ -103,7 +103,7 @@ for i in range(2):
     successful_calls += 1
     success_file.write("The item with CSID {0} was successfully updated. \n".format(csid))
     if (successful_calls % 250 == 0):
-        print ("{0} successes, {1} failed gets, {2} failed puts".format(sucessful_calls, failed_gets, failed_puts))
+        print ("{0} successes, {1} failed gets, {2} failed puts".format(successful_calls, failed_gets, failed_puts))
 
     current_transaction_end = time.time()
     print ("Processed {0}. It took {1} seconds.".format(request, str(current_transaction_end - current_transaction_start))) 
