@@ -10,13 +10,13 @@
 	<queryString>
 		<![CDATA[select co1.objectnumber,
 case when (tn.family is not null and tn.family <> '')
-   then regexp_replace(tn.family, '^.*\)''(.*)''$', '\1')
+   then getdispl(tn.family)
 end as family,
 findhybridaffinname(tig.id) Determination,
 date(mc.locationdate + interval '8 hours') actiondate,
-regexp_replace(mb.reasonformove, '^.)''(.)''$', '\1') actionreason,
+getdispl(mc.reasonformove) actionreason,
 case when (mb.previouslocation is not null and mb.previouslocation <> '')
-     then regexp_replace(mb.previouslocation, '^.*\)''(.*)''$', '\1')
+     then getdispl(mb.previouslocation)
 end as previouslocation
 from collectionobjects_common co1
 join hierarchy h1 on co1.id=h1.id
@@ -29,7 +29,7 @@ join relations_common r1 on (h1.name=r1.subjectcsid and objectdocumenttype='Move
 join hierarchy h2 on (r1.objectcsid=h2.name and h2.isversion is true)
 join movements_common mc on (mc.id=h2.id)
 left outer join movements_botgarden mb on (mc.id=mb.id)
-left outer join loctermgroup lct on (regexp_replace(mb.previouslocation, '^.*\)''(.*)''$', '\1')=lct.termdisplayname)
+left outer join loctermgroup lct on (getdispl(mb.previouslocation)=lct.termdisplayname)
 inner join misc misc1 on (mc.id=misc1.id and misc1.lifecyclestate <> 'deleted')
 join collectionspace_core core on mc.id=core.id
 where getdispl(mc.reasonformove) = 'Dead' and lct.termdisplayname like $P{location}
