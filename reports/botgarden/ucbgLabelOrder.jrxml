@@ -14,21 +14,21 @@
 		<![CDATA[select co1.objectnumber,
 mb.labelrequested, h2.isversion,
 case when (mc.currentlocation is not null and mc.currentlocation <> '')
-     then regexp_replace(mc.currentlocation, '^.*\)''(.*)''$', '\1')
+     then getdispl(mc.currentlocation)
 end as gardenlocation,
 case when (tig.hybridflag = 'true' or tig.affinitytaxon is not null or tig.affinitytaxon='') then findhybridaffinname(tig.id)
      when tt.termdisplayname is not null then tt.termdisplayname
-     when (tig.taxon is not null and tig.taxon <> '') then regexp_replace(tig.taxon, '^.*\)''(.*)''$', '\1')
+     when (tig.taxon is not null and tig.taxon <> '') then getdispl(tig.taxon)
 end as shortTaxonomicName,
 to_char(mb.labelcount, '999') labelCount,
-regexp_replace(mb.labelsize, '^.)''(.)''$', '\1'),
-regexp_replace(mb.labelstandtype, '^.)''(.)''$', '\1'),
-case when (lg.fieldlocplace is not null and lg.fieldlocplace <> '') then regexp_replace(lg.fieldlocplace, '^.*\)''(.*)''$', '\1')
+getdispl(mb.labelsize) labelsize,
+getdispl(mb.labelstandtype) labelstandtype,
+case when (lg.fieldlocplace is not null and lg.fieldlocplace <> '') then getdispl(lg.fieldlocplace)
      when (lg.fieldlocplace is null and lg.taxonomicrange is not null) then 'Geographic range: '||lg.taxonomicrange
 end as Locality, -- proxy for collection site information for now
 bd.item materialType,
 case when (tn.family is not null and tn.family <> '')
-     then regexp_replace(tn.family, '^.*\)''(.*)''$', '\1')
+     then getdispl(tn.family)
 end as family,
 com.item accessionNotes,
 case when con.rare = 'true' then 'Red Dot' end as rareStatus,
