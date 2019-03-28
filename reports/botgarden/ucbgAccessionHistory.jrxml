@@ -10,16 +10,16 @@
 		<![CDATA[select co1.objectnumber,
 findhybridaffinname(tig.id) Determination,
 date(mc.locationdate + interval '8 hours') actiondate,
-regexp_replace(mb.reasonformove, '^.)''(.)''$', '\1') actionreason,
+getdispl(mc.reasonformove) actionreason,
 mb.labelrequested,
 mb.labelcount,
-regexp_replace(mb.labelsize, '^.)''(.)''$', '\1'),
-regexp_replace(mb.labelstandtype, '^.)''(.)''$', '\1'),
+getdispl(mb.labelsize),
+getdispl(mb.labelstandtype),
 case when (mb.previouslocation is not null and mb.previouslocation <> '')
-     then regexp_replace(mb.previouslocation, '^.*\)''(.*)''$', '\1')
+     then getdispl(mb.previouslocation)
 end as previouslocation,
 case when (mc.currentlocation is not null and mc.currentlocation <> '')
-     then regexp_replace(mc.currentlocation, '^.*\)''(.*)''$', '\1')
+     then getdispl(mc.currentlocation)
 end as currentlocation,
 mc.movementnote,
 case when getdispl(mc.reasonformove) = 'Other' then 1 else 0 end as reasonsort
