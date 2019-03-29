@@ -131,7 +131,7 @@ URL: http://ucjeps.berkeley.edu]]></text>
 				<text><![CDATA[Date:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="134" y="122" width="168" height="20"/>
+				<reportElement x="140" y="122" width="168" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -143,7 +143,7 @@ URL: http://ucjeps.berkeley.edu]]></text>
 				<text><![CDATA[Sent by: ]]></text>
 			</staticText>
 			<textField pattern="MMMMM dd, yyyy" isBlankWhenNull="true">
-				<reportElement x="134" y="101" width="168" height="20"/>
+				<reportElement x="140" y="101" width="168" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -172,14 +172,14 @@ URL: http://ucjeps.berkeley.edu]]></text>
 				<text><![CDATA[TRANSACTION DESCRIPTION]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="31" y="198" width="98" height="20"/>
+				<reportElement x="31" y="198" width="105" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Group:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="134" y="198" width="190" height="20"/>
+				<reportElement x="140" y="198" width="190" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -201,28 +201,28 @@ URL: http://ucjeps.berkeley.edu]]></text>
 				<textFieldExpression><![CDATA[$F{addresscountry}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="134" y="258" width="191" height="20"/>
+				<reportElement x="140" y="258" width="191" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{borrowerscontact}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="31" y="258" width="98" height="20"/>
+				<reportElement x="31" y="258" width="105" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[For study by:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="134" y="178" width="191" height="20"/>
+				<reportElement x="140" y="178" width="191" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{loanoutnumber}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="31" y="178" width="98" height="20"/>
+				<reportElement x="31" y="178" width="105" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -236,42 +236,42 @@ URL: http://ucjeps.berkeley.edu]]></text>
 				<textFieldExpression><![CDATA[$F{specialconditionsofloan}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="31" y="218" width="98" height="20"/>
+				<reportElement x="31" y="218" width="105" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Taxonomy:*]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="134" y="218" width="190" height="20"/>
+				<reportElement x="140" y="218" width="190" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{taxonomy}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="31" y="238" width="98" height="20"/>
+				<reportElement x="31" y="238" width="105" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Geography:*]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="134" y="238" width="190" height="20"/>
+				<reportElement x="140" y="238" width="190" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{geography}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="31" y="278" width="98" height="20"/>
+				<reportElement x="31" y="278" width="105" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[No. of specimens:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="134" y="278" width="100" height="20"/>
+				<reportElement x="140" y="278" width="100" height="20"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
