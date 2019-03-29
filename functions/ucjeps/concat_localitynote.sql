@@ -16,14 +16,14 @@ select
         when lg.fieldloccounty is null or lg.fieldloccounty = '' or lg.fieldloccounty = ' ' then
             regexp_replace(
                 regexp_replace(
-                    coalesce(lg.fieldlocstate, '') || ', ' || coalesce(lg.fieldloccountry,''),
+                    coalesce(getdispl(lg.fieldlocstate), '') || ', ' || coalesce(getdispl(lg.fieldloccountry),''),
                     '^ ?, ', ''),
                 ', *$', '') || '.'
         else
             regexp_replace(
                 regexp_replace(
-                    coalesce(lg.fieldloccounty, '') || ' County, ' ||
-                        coalesce(lg.fieldlocstate, '') || ', ' || coalesce(lg.fieldloccountry,''),
+                    coalesce(getdispl(lg.fieldloccounty), '') || ' County, ' ||
+                        coalesce(getdispl(lg.fieldlocstate), '') || ', ' || coalesce(getdispl(lg.fieldloccountry),''),
                     ', +, ', ', '),
                 ', *$', '') || '.'
     end ||
