@@ -10,7 +10,7 @@ our($opt_n, $opt_d);
 getopts('nd');
 
 my $WARNING_THRESHOLD = 90;
-my $MAIL_TO = 'cspace-support@lists.berkeley.edu';
+my $MAIL_TO = 'cspace-checkmem@lists.berkeley.edu';
 
 my @script_name_parts = split(/\//, $0);
 my $script_name = $script_name_parts[-1];
