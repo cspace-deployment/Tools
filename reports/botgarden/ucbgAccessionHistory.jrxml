@@ -13,8 +13,8 @@ date(mc.locationdate + interval '8 hours') actiondate,
 getdispl(mc.reasonformove) actionreason,
 mb.labelrequested,
 mb.labelcount,
-getdispl(mb.labelsize),
-getdispl(mb.labelstandtype),
+getdispl(mb.labelsize) labelsize,
+getdispl(mb.labelstandtype) labelstandtype,
 case when (mb.previouslocation is not null and mb.previouslocation <> '')
      then getdispl(mb.previouslocation)
 end as previouslocation,
