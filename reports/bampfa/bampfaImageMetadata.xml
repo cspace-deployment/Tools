@@ -12,5 +12,6 @@
     <supportsNoContext>true</supportsNoContext>
     <filename>bampfaImageMetadata.jasper</filename>
     <outputMIME>text/csv</outputMIME>
+    <supportsParams>true</supportsParams>
   </ns2:reports_common>
 </document>
