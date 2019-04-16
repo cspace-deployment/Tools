@@ -12,5 +12,6 @@
     <supportsNoContext>true</supportsNoContext>
     <filename>ucbgDiedInLocation.jasper</filename>
     <outputMIME>application/pdf</outputMIME>
+    <supportsParams>true</supportsParams>
   </ns2:reports_common>
 </document>
