@@ -5,6 +5,7 @@ import time
 import sys
 import socket
 import ssl
+import getpass as gp
 
 try:
 	from http.client import HTTPConnection
@@ -49,12 +50,17 @@ mode = '' if (args[1] == '--prod') else '-dev'
 BASE_URL = 'https://bampfa{0}.cspace.berkeley.edu/cspace-services/personauthorities/1e3308ba-9d64-49e7-9541/items/'.format(mode)
 PAGE_OPT =  '?pgSz=2500&pgNum={0}'
 
-password = os.environ['cspace_pass']
-user = os.environ['cspace_user']
+try: 
+  user = input('Username: ')
+except:
+  print ('Error: Username should be in quotes.')
+  user = input('Username: ')
 
-failed_gets_file = open("failed_gets.txt", "w+")
-failed_puts_file = open("failed_puts.txt", "w+")
-success_file = open("successful_calls.txt", "w+")
+password = gp.getpass()
+
+failed_gets_file = open("/tmp/failed_gets.txt", "w+")
+failed_puts_file = open("/tmp/failed_puts.txt", "w+")
+success_file = open("/tmp/successful_calls.txt", "w+")
 
 failed_gets = 0
 failed_puts = 0
