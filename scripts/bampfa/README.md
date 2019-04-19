@@ -6,11 +6,6 @@ This folder contains scripts that updata data in the CollectionSpace BAMPFA depl
 ### updatePersons.py
 #### To run: 
     python updatePersons.py --(dev | prod)
-
-There also need to exist 2 environment variables in the system in order to run successfully 
-    
-    cspace_user: Username for bampfa(-dev).cspace.berkeley.edu
-    cspace_pass: Password for the user `cspace_user`
     
 
 #### Description:
@@ -21,6 +16,6 @@ PUTting an empty XML template with just the CSID of the record is not possible, 
 #### Output:
 - As the script is running, it prints the url it is trying to GET/PUT. 
 - Upon terminating, it generates 3 files:
-    - `failed_gets.txt`: A file containing all the failed GET requests. Followed by the total number of these failures 
-    - `failed_puts.txt`: A file containing all the failed PUT requests. Followed by the total number of these failures 
-    - `successful_calls.txt`: A file containg all of the successful calls to the REST API.
+    - `/tmp/failed_gets.txt`: A file containing all the failed GET requests. Followed by the total number of these failures 
+    - `/tmp/failed_puts.txt`: A file containing all the failed PUT requests. Followed by the total number of these failures 
+    - `/tmp/successful_calls.txt`: A file containg all of the successful calls to the REST API.
