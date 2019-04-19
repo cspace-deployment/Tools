@@ -12,5 +12,6 @@
     <supportsNoContext>true</supportsNoContext>
     <filename>ucbgAccessionGroupReport.jasper</filename>
     <outputMIME>application/pdf</outputMIME>
+    <supportsParams>false</supportsParams>
   </ns2:reports_common>
 </document>

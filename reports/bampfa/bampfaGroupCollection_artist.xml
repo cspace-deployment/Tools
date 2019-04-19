@@ -12,5 +12,6 @@
     <supportsNoContext>true</supportsNoContext>
     <filename>bampfaGroupCollection_artist.jasper</filename>
     <outputMIME>application/vnd.openxmlformats-officedocument.wordprocessingml.document</outputMIME>
+    <supportsParams>false</supportsParams>
   </ns2:reports_common>
 </document>
