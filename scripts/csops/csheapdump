@@ -4,6 +4,7 @@ FORCE=false
 LIVE=true
 QUIET=false
 DEST=/Projects/CSpace/devops/heapdumps/`hostname`/`csname`/`date +'%F_%T'`
+CSPID=`cspid`
 
 while getopts ":fdq" opt; do
    case ${opt} in
@@ -33,11 +34,11 @@ fi
 if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
    if ! $QUIET; then
       if ! $LIVE; then
-         echo "Dumping heap for pid:  `cspid`"
-         jmap -dump:file=$HOME/heap.dump `cspid`
+         echo "Dumping heap for pid:  $CSPID"
+         jmap -dump:file=$HOME/heap.dump $CSPID
       else
-         echo "Dumping live heap for pid:  `cspid`"
-         jmap -dump:live,file=$HOME/heap.dump `cspid`
+         echo "Dumping live heap for pid:  $CSPID"
+         jmap -dump:live,file=$HOME/heap.dump $CSPID
       fi
 
       echo ""
@@ -59,11 +60,12 @@ if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
       for log in $(/bin/ls -c1 -t $HOME/log/cscheckmem.*csv | /bin/head -1); do
          rclone copy -P $log heapdumps:$DEST
       done
+      rclone copy -P $HOME/log/cscheckmemnew.log heapdumps:$DEST
    else
       if ! $LIVE; then
-         jmap -dump:file=$HOME/heap.dump `cspid` > /dev/null 2>&1
+         jmap -dump:file=$HOME/heap.dump $CSPID > /dev/null 2>&1
       else
-         jmap -dump:live,file=$HOME/heap.dump `cspid` > /dev/null 2>&1
+         jmap -dump:live,file=$HOME/heap.dump $CSPID > /dev/null 2>&1
       fi
       /bin/gzip -q $HOME/heap.dump > /dev/null 2>&1
       rclone copy -q $HOME/heap.dump.gz heapdumps:$DEST > /dev/null 2>&1
@@ -74,6 +76,7 @@ if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
       for log in $(/bin/ls -c1 -t $HOME/log/cscheckmem.*csv | /bin/head -1); do
          rclone copy -q $log heapdumps:$DEST > /dev/null 2>&1
       done
+      rclone copy -q $HOME/log/cscheckmemnew.log heapdumps:$DEST > /dev/null 2>&1
    fi
 else
    if  ! $QUIET; then
