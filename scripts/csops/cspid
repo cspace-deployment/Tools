@@ -4,4 +4,5 @@
 
 DEPLOYMENT_NAME=`csname`
 
-pgrep -fn -u $USER "java .* -Dcatalina.base=/var/lib/tomcats/$DEPLOYMENT_NAME"
+/bin/systemctl show -p MainPID `csservname` 2>/dev/null | /bin/cut -d= -f2
+#pgrep -fn -u $USER "java .* -Dcatalina.base=/var/lib/tomcats/$DEPLOYMENT_NAME"
