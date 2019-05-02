@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+
+# Check JVM memory (heap) usage statistics. This script prints a report to standard out and appends data to a log file. It may optionally send an email notification and/or dump heap diagnostics if heap usage exceeds a threshold.
+
+use strict;
+use Getopt::Std;
+use Fcntl qw(:flock);
+
+our($opt_n, $opt_d);
+
+getopts('nd');
+
+my $WARNING_THRESHOLD = 90;
+my $MAIL_TO = 'cspace-checkmem@lists.berkeley.edu';
+
+my @script_name_parts = split(/\//, $0);
+my $script_name = $script_name_parts[-1];
+
+my ($sec, $min, $hour, $mday, $mon, $year) = localtime();
+my $datestamp = sprintf("%.4d-%.2d-%.2d", $year + 1900, $mon + 1, $mday);
+my $timestamp = sprintf("%.4d-%.2d-%.2dT%.2d:%.2d:%.2d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+my $cspid = `cspid`;
+
+chomp($cspid);
+
+my %gccapacity = jstat_hash(`jstat -gccapacity $cspid`);
+my %gc = jstat_hash(`jstat -gc $cspid`);
+
+my $young_gen_max = $gccapacity{NGCMX};
+my $young_gen_used = $gc{EU} + $gc{S0U} + $gc{S1U};
+my $young_gen_pct = $young_gen_used / $young_gen_max * 100;
+
+my $old_gen_max = $gccapacity{OGCMX};
+my $old_gen_used = $gc{OU};
+my $old_gen_pct = $old_gen_used / $old_gen_max * 100;
+
+my $gc_time = sprintf("%.2f", $gc{GCT});
+
+print_report();
+print_log();
+check_warning();
+
+sub print_report {
+   print "CollectionSpace Tomcat JVM heap usage (KB) at $timestamp:\n\n";
+   print "young gen: $young_gen_used / $young_gen_max ", sprintf("(%.2f%%)", $young_gen_pct), "\n";
+   print "old gen:   $old_gen_used / $old_gen_max ", sprintf("(%.2f%%)", $old_gen_pct), "\n";
+}
+
+sub print_log {
+   my $log_file = "$ENV{HOME}/log/$script_name.log";
+   my $gcdelta = 0;
+   my $log = "";
+
+   if (-e $log_file) {
+      my @lastline = split(' ', `/bin/tail -1 $log_file`);
+
+      if ($lastline[0] eq "time") { $gcdelta = ""; }
+      elsif (scalar @lastline == 8) { $gcdelta = $gc_time - $lastline[-1]; }
+      else { $gcdelta = $gc_time - $lastline[-2]; }
+
+      if ($gcdelta < 0) { $gcdelta = ""; }
+
+      $log = `/bin/tail -10079 $log_file`;
+      $log =~ s/time.*?\n//s;
+   }
+   else {
+      $gcdelta = "";
+   }
+
+   $log = sprintf("%-19s   %s   %s   %s   %s   %13s   %s   %12s   %s\n", "time", "young gen used", "young gen max", "young gen pct", "old gen used", "old gen max", "old gen pct", "gc time", "gc delta").$log;
+
+   if ($gcdelta ne "") {
+      $log = $log.sprintf("%-19s   %14.2f   %13.2f   %13.2f   %12.2f   %13.2f   %11.2f   %12.2f   %8.2f\n", $timestamp, $young_gen_used, $young_gen_max, $young_gen_pct, $old_gen_used, $old_gen_max, $old_gen_pct, $gc_time, $gcdelta);
+   }
+   else {
+      $log = $log.sprintf("%-19s   %14.2f   %13.2f   %13.2f   %12.2f   %13.2f   %11.2f   %12.2f   %s\n", $timestamp, $young_gen_used, $young_gen_max, $young_gen_pct, $old_gen_used, $old_gen_max, $old_gen_pct, $gc_time, $gcdelta);
+   }
+
+   open(my $fh, ">$log_file") or die "Could not open file '$log_file' $!";
+   flock($fh, LOCK_EX);
+   print $fh $log;
+   close $fh;
+}
+
+sub check_warning {
+   if ($old_gen_pct > $WARNING_THRESHOLD) {
+      print "\n";
+
+      print "WARNING: old gen usage exceeds $WARNING_THRESHOLD% of max\n" if ($old_gen_pct > $WARNING_THRESHOLD);
+
+      dump_heap() if $opt_d;
+      notify() if $opt_n;
+   }
+}
+
+sub dump_heap {
+   # FIXME: jcmd not connecting to jvm on the RHEL7 server.
+   # my $heap_dump_file = "$ENV{HOME}/log/GC.heap_dump.hprof";
+   # my $class_histogram_file = "$ENV{HOME}/log/GC.class_histogram.txt";
+
+   # print "\n";
+   # print "Saving diagnostics...\n";
+
+   # system "jcmd $cspid GC.heap_dump $heap_dump_file > /dev/null";
+
+   # print "Saved heap dump to $heap_dump_file\n";
+
+   # system "jcmd $cspid GC.class_histogram > $class_histogram_file";
+
+   # print "Saved class histogram to $class_histogram_file\n";
+}
+
+sub notify {
+   my $service_name = `csservname`;
+   my $hostname = `hostname`;
+
+   chomp($service_name);
+   chomp($hostname);
+
+   my $mail_subject = "$script_name: high memory use in $service_name";
+
+   open(my $mail, "|/bin/mail -s '$mail_subject' $MAIL_TO");
+
+   print $mail "$script_name has detected high memory use in $service_name on $hostname.\n";
+   print $mail "\n";
+   print $mail "CollectionSpace Tomcat JVM heap usage (KB) at $timestamp:\n\n";
+   print $mail "young gen: $young_gen_used / $young_gen_max ", sprintf("(%.2f%%)", $young_gen_pct), "\n";
+   print $mail "old gen:   $old_gen_used / $old_gen_max ", sprintf("(%.2f%%)", $old_gen_pct), "\n";
+   print $mail "\n";
+   print $mail "WARNING: old gen usage exceeds $WARNING_THRESHOLD% of max\n" if ($old_gen_pct > $WARNING_THRESHOLD);
+
+   close $mail;
+}
+
+sub jstat_hash {
+   my $header = shift;
+   my $body = shift;
+
+   $header =~ s/^\s+|\s$//g;
+   $body =~ s/^\s+|\s$//g;
+
+   my @names = split(/\s+/, $header);
+   my @values = split(/\s+/, $body);
+
+   my %hash;
+
+   for (my $i=0; $i<=$#names; $i++) {
+      $hash{$names[$i]} = $values[$i];
+   }
+
+   return %hash;
+}
