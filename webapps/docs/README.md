@@ -1,16 +1,18 @@
-To "deploy" these documents, I did the following:
+To "deploy" these documents:
 
-1. Made a local clone of this repo (Tools) on the target server (in this case, dev.cspace).
-
-2. 
-
+```
+  ssh cspace-dev-01.ist.berkeley.edu
+  sudo su - app_webapps
   cd Tools/
   git pull -v
-  sudo cp -r webapps/docs/webappmanual/ /var/www/html/webappmanual
+  cp -r webapps/docs/webappmanual/ /var/www/static/webappmanual
+```
 
-Then I was able to see the document at:
+You should then be see these documents at:
 
- https://dev.cspace.berkeley.edu/webappmanual/webappmanual.html
+https://webapps.cspace.berkeley.edu/webappmanual/pahma-webappmanual.html
 
-jbl
-7/21/2014
+and
+
+https://webapps.cspace.berkeley.edu/webappmanual/bampfa-webappmanual.html
+
