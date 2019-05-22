@@ -21,7 +21,7 @@
 # run BMU batch jobs (nightly or twice a day depending)
 ##################################################################################
 # run PAHMA BMU (one minute after 7pm)
-01 19 * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_pahma/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/pahma/uploadmedia/postblob.sh pahma $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_pahma/batches.log 2>&1 ; done
+10 19   * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_pahma/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/pahma/uploadmedia/postblob.sh pahma $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_pahma/batches.log 2>&1 ; done
 # run UCJEPS BMU (ten minutes after 9pm)
 10 21 * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_ucjeps/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/ucjeps/uploadmedia/postblob.sh ucjeps $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_ucjeps/batches.log 2>&1 ; done
 # run Cinefiles BMU ((ten minutes after 10pm)
@@ -57,7 +57,8 @@
 0 4 * * 1 cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do ./monitorImageCache.sh ~/cache/$t > report.txt 2>&1 ; cat report.txt | mail -s "image cache status" -- cspace-app-logs@lists.berkeley.edu ; done
 0 4 * * * cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do python checkCache.py ~/cache/$t >> $t.imagecache.log ; done
 # clean up the caches: files w mod times > 7 days, 404's
-0 4 * * * find ~/cache/*/images -type f -mtime +7 -delete > /dev/null 2>&1
+0 5 * * * find ~/cache/*/images -type f -size +2M -mmin +59 -delete > /dev/null 2>&1
+0 6 * * * find ~/cache/*/images -type f -mtime +7 -delete > /dev/null 2>&1
 0 4 * * 1 find ~/cache/*/images -type f -exec grep -q -a 'filename="404' {} \; -exec echo {} \; -exec rm {} \; > /dev/null 2>&1
 ##################################################################################
 # run the UCJEPS jobs weekly, on Saturday
