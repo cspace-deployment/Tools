@@ -151,7 +151,7 @@ where h1.name=$P{csid}]]>
 			</elementGroup>
 			<elementGroup>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement uuid="4ffec893-00bf-4842-a9bf-a9c1bf51d883" positionType="Float" x="81" y="22" width="332" height="15" isPrintWhenDetailOverflows="true"/>
+					<reportElement uuid="4ffec893-00bf-4842-a9bf-a9c1bf51d883" positionType="Float" x="80" y="22" width="332" height="15" isPrintWhenDetailOverflows="true"/>
 					<textElement>
 						<font size="10"/>
 					</textElement>
@@ -174,7 +174,7 @@ where h1.name=$P{csid}]]>
 					<textFieldExpression><![CDATA[$F{family}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement uuid="c7ae9bc8-9117-4e17-a47a-9f1dc03421a9" positionType="Float" x="81" y="42" width="231" height="15" isPrintWhenDetailOverflows="true"/>
+					<reportElement uuid="c7ae9bc8-9117-4e17-a47a-9f1dc03421a9" positionType="Float" x="80" y="42" width="231" height="15" isPrintWhenDetailOverflows="true"/>
 					<textElement>
 						<font size="10"/>
 					</textElement>
@@ -204,14 +204,14 @@ where h1.name=$P{csid}]]>
 					<textFieldExpression><![CDATA[$F{rarestatus}.equals("rare")? "\"rare\"" : null]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement uuid="daab812a-daf5-426d-8ab9-4868f88279a4" positionType="Float" x="81" y="62" width="442" height="15" isPrintWhenDetailOverflows="true"/>
+					<reportElement uuid="daab812a-daf5-426d-8ab9-4868f88279a4" positionType="Float" x="80" y="62" width="442" height="15" isPrintWhenDetailOverflows="true"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[$F{collectioninfo}]]></textFieldExpression>
 				</textField>
 			</elementGroup>
 			<elementGroup>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement uuid="d82afdbc-c091-4d09-a320-bc56b9d4309d" positionType="Float" x="81" y="82" width="442" height="15" isPrintWhenDetailOverflows="true"/>
+					<reportElement uuid="d82afdbc-c091-4d09-a320-bc56b9d4309d" positionType="Float" x="80" y="82" width="442" height="15" isPrintWhenDetailOverflows="true"/>
 					<textElement>
 						<font size="10"/>
 					</textElement>
@@ -226,7 +226,7 @@ where h1.name=$P{csid}]]>
 				</textField>
 			</elementGroup>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement uuid="8b62d4f4-c0bf-4ec5-bea4-9610c70f9cf4" positionType="Float" x="81" y="105" width="442" height="15" isPrintWhenDetailOverflows="true"/>
+				<reportElement uuid="8b62d4f4-c0bf-4ec5-bea4-9610c70f9cf4" positionType="Float" x="80" y="105" width="442" height="15" isPrintWhenDetailOverflows="true"/>
 				<textElement>
 					<font size="10"/>
 				</textElement>
