@@ -85,6 +85,7 @@
 ##################################################################################
 # monitor webapp use
 ################################################################################
-5 07-20 * * * perl -ne 'next if /^(start|POST|PUT)/;s/\r//;s/elapsedtime= *//;s/\t[a-z]+=/\t/g;print;' /tmp/dj.tools-prod.csv | awk -v OFS="\t" -F"\t" '{print $2,$5,$3,$7,$1,$6,$10,$8,$9}' > ~/monitor/currappuse.csv ; cat ~/monitor/currappuse.csv ~/monitor/webappuse.csv | sort -u > /tmp/tmp2 ; mv /tmp/tmp2 ~/monitor/webappuse.csv ; perl ~/monitor/monitorWebapps.pl ~/monitor/webappuse.csv > /var/www/static/webappuse.html
+10 04 * * * perl -ne 'next if /^(start|POST|PUT)/;s/\r//;s/elapsedtime= *//;s/\t[a-z]+=/\t/g;print;' /tmp/dj.tools-prod.csv | awk -v OFS="\t" -F"\t" '{print $2,$5,$3,$7,$1,$6,$10,$8,$9}' > ~/monitor/currappuse.csv ; cat ~/monitor/currappuse.csv ~/monitor/webappuse.csv | sort -u > /tmp/tmp2 ; mv /tmp/tmp2 ~/monitor/webappuse.csv ; perl ~/monitor/monitorWebapps.pl ~/monitor/webappuse.csv > /var/www/static/webappuse.html
 # analyze and summarize the django logs, keep a copy of an extract of the other vhost logs
-5 04 * * * cd ~/monitor ; ./analyze.sh > /dev/null 2>&1 ; ./corestats.sh > /dev/null 2>&1 ; ./keep.apache.logs.sh > /dev/null 2>&1
+05 04 * * * cd ~/monitor ; ./analyze.sh > /dev/null 2>&1 ; ./corestats.sh > /dev/null 2>&1 ; ./keep.apache.logs.sh > /dev/null 2>&1
+20 04 * * * wc -l /srv/nfs/media/image_upload_cache_*/*.processed.csv | perl -pe 's/^ *(\d+) /\1\t/;s#/srv/nfs/media/image_upload_cache_##;s#/#\t#g;s/.processed.csv//' > ~/monitor/bmu-counts.csv
