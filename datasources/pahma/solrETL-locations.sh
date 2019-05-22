@@ -17,6 +17,7 @@ HOSTNAME="dba-postgres-prod-42.ist.berkeley.edu port=5307 sslmode=prefer"
 USERNAME="reporter_pahma"
 DATABASE="pahma_domain_pahma"
 CONNECTSTRING="host=$HOSTNAME dbname=$DATABASE"
+export NUMCOLS=36
 ##############################################################################
 # extract locations, past and present, from CSpace
 ##############################################################################
@@ -37,21 +38,19 @@ wait
 rm m1a.csv m2a.csv
 time join -j 1 -t $'\t' m1a.sort.csv m2a.sort.csv > m3.sort.csv
 rm m1a.sort.csv m2a.sort.csv
+cut -f1-5,7- m3.sort.csv > m4.csv
 ##############################################################################
 # we want to recover and use our "special" solr-friendly header, which got buried
 ##############################################################################
-grep -P "^object_" m3.sort.csv > header4Solr.csv &
-grep -v -P "^object_" m3.sort.csv > m4.csv &
+grep -P "^csid_s\t" m4.csv > header4Solr.csv &
+grep -v -P "^csid_s\t" m4.csv > m5.csv &
 wait
-# add a sequential integer as the solr id
-perl -i -pe '$i++;print $i . "\t"' m4.csv
-perl -i -pe 's/^/id\t/' header4Solr.csv
-cat header4Solr.csv m4.csv > m6.csv
-rm m3.sort.csv m4.csv
+cat header4Solr.csv m5.csv > m4.csv
+rm m5.csv m3.sort.csv
 ##############################################################################
 # count the types and tokens in the final file
 ##############################################################################
-time python evaluate.py m6.csv 4solr.${TENANT}.locations.csv > counts.locations.csv
+time python evaluate.py m4.csv 4solr.${TENANT}.locations.csv > counts.locations.csv
 ##############################################################################
 # ok, now let's load this into solr...
 # clear out the existing data
@@ -64,11 +63,11 @@ curl -S -s "http://localhost:8983/solr/${TENANT}-locations/update" --data '<comm
 ##############################################################################
 time curl -X POST -s -S 'http://localhost:8983/solr/pahma-locations/update/csv?commit=true&header=true&trim=true&separator=%09&encapsulator=\' -T 4solr.pahma.locations.csv -H 'Content-type:text/plain; charset=utf-8' &
 # count blobs
-cut -f67 4solr.${TENANT}.locations.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.locations.blobs.csv &
-cut -f67 4solr.${TENANT}.locations.csv | perl -pe 's/\r//;s/,/\n/g' | grep -v 'blob_ss' | grep . | wc -l >> counts.locations.blobs.csv &
-wait
+cut -f67 4solr.${TENANT}.locations.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.locations.blobs.csv
+cut -f67 4solr.${TENANT}.locations.csv | perl -pe 's/\r//;s/,/\n/g' | grep -v 'blob_ss' | grep . | wc -l >> counts.locations.blobs.csv
 cp counts.locations.blobs.csv /tmp/$TENANT.counts.locations.csv
 # get rid of intermediate files
-rm m6.csv
+rm m4.csv
+wait
 gzip -f 4solr.$TENANT.locations.csv
 date
