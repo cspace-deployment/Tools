@@ -1,0 +1,90 @@
+#!/bin/bash
+
+FORCE=false
+LIVE=true
+QUIET=false
+DEST=/Projects/CSpace/devops/heapdumps/`hostname`/`csname`/`date +'%F_%T'`
+CSPID=`cspid`
+
+while getopts ":fdq" opt; do
+   case ${opt} in
+      f ) FORCE=true
+      ;;
+      d ) LIVE=false
+      ;;
+      q ) QUIET=true
+      ;;
+      \? ) echo "Usage: csheapdump [-f] [-l] [-q]"; echo "-f=force, -d=do not perform live dump, -q=quiet"; exit 1
+      ;;
+   esac
+done
+
+if [ ! -n "$CSPID" ]; then
+        if ! $QUIET; then
+                echo "It does not look like cspace is running!"
+        fi
+
+        exit 1
+fi
+
+if [ -f $HOME/heap.dump ] || [ -f $HOME/heap.dump.gz ]; then
+   if ! $QUIET; then
+      echo "Removing old dump"
+   fi
+
+   if ! $FORCE; then
+      rm -i $HOME/heap.dump $HOME/heap.dump.gz
+   else
+      rm -f $HOME/heap.dump $HOME/heap.dump.gz
+   fi
+fi
+
+if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
+   if ! $QUIET; then
+      if ! $LIVE; then
+         echo "Dumping heap for pid:  $CSPID"
+         jmap -dump:file=$HOME/heap.dump $CSPID
+      else
+         echo "Dumping live heap for pid:  $CSPID"
+         jmap -dump:live,file=$HOME/heap.dump $CSPID
+      fi
+
+      echo ""
+      echo "Gzipping heap dump"
+      /bin/gzip -v $HOME/heap.dump
+
+      echo ""
+      echo "Copying heap dump to PDG Team Drive $DEST"
+      rclone copy -P $HOME/heap.dump.gz heapdumps:$DEST
+
+      echo ""
+      echo "Copying localhost logs to PDG Team Drive $DEST"
+      for log in $(/bin/ls -c1 -t $HOME/log/tomcat/localhost_access_log.*txt | /bin/head -2); do
+         rclone copy -P $log heapdumps:$DEST
+      done
+
+      echo ""
+      echo "Copying cscheckmem log to PDG Team Drive $DEST"
+      rclone copy -P $HOME/log/cscheckmemnew.log heapdumps:$DEST
+   else
+      if ! $LIVE; then
+         jmap -dump:file=$HOME/heap.dump $CSPID > /dev/null 2>&1
+      else
+         jmap -dump:live,file=$HOME/heap.dump $CSPID > /dev/null 2>&1
+      fi
+      /bin/gzip -q $HOME/heap.dump > /dev/null 2>&1
+      rclone copy -q $HOME/heap.dump.gz heapdumps:$DEST > /dev/null 2>&1
+      for log in $(/bin/ls -c1 -t $HOME/log/tomcat/localhost_access_log.*txt | /bin/head -2); do
+         rclone copy -q $log heapdumps:$DEST > /dev/null 2>&1
+      done
+
+      rclone copy -q $HOME/log/cscheckmemnew.log heapdumps:$DEST > /dev/null 2>&1
+   fi
+else
+   if  ! $QUIET; then
+      echo "Please move or delete the old heap dump."
+   fi
+   exit 1;
+fi
+
+exit 0;
