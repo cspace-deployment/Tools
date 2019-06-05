@@ -19,6 +19,14 @@ while getopts ":fdq" opt; do
    esac
 done
 
+if [ ! -n "$CSPID" ]; then
+        if ! $QUIET; then
+                echo "It does not look like cspace is running!"
+        fi
+
+        exit 1
+fi
+
 if [ -f $HOME/heap.dump ] || [ -f $HOME/heap.dump.gz ]; then
    if ! $QUIET; then
       echo "Removing old dump"
@@ -57,9 +65,6 @@ if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
 
       echo ""
       echo "Copying cscheckmem log to PDG Team Drive $DEST"
-      for log in $(/bin/ls -c1 -t $HOME/log/cscheckmem.*csv | /bin/head -1); do
-         rclone copy -P $log heapdumps:$DEST
-      done
       rclone copy -P $HOME/log/cscheckmemnew.log heapdumps:$DEST
    else
       if ! $LIVE; then
@@ -73,9 +78,6 @@ if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
          rclone copy -q $log heapdumps:$DEST > /dev/null 2>&1
       done
 
-      for log in $(/bin/ls -c1 -t $HOME/log/cscheckmem.*csv | /bin/head -1); do
-         rclone copy -q $log heapdumps:$DEST > /dev/null 2>&1
-      done
       rclone copy -q $HOME/log/cscheckmemnew.log heapdumps:$DEST > /dev/null 2>&1
    fi
 else
