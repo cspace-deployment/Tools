@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Std;
+use Fcntl qw(:flock);
+
+# -r = restart, used via crontab so that we can control when restarts occur
+# -n = notify
+our($opt_r, $opt_n);
+getopts('rn');
+
+# CC-374
+my $OLD_GEN_MAX = 95;
+my $GC_DELTA_MAX = 20;
+my $CHECK_ROWS = 10;
+my $ALERT_EMAIL = 'cspace-checkmem@lists.berkeley.edu';
+
+my $CSPID = `cspid`;
+my $CHECKMEMLOG = $ENV{"HOME"}."/log/cscheckmemnew.log";
+
+# ensure only one copy of this script runs
+open SELF, "< $0" or die "Could not open self $!\n";
+flock SELF, LOCK_EX | LOCK_NB  or exit 1;
+
+# make sure the checkmemlog exists and that cspace is running
+if (-f $CHECKMEMLOG && $CSPID =~ /\d+/) {
+   main();
+}
+else {
+   exit 1;
+}
+exit 0;
+
+sub main {
+   open(my $fh, "<$CHECKMEMLOG") or die "Could not open file '$CHECKMEMLOG' $!\n";
+
+   # obtain lock to make sure that cscheckmemnew is not currently writing to this
+   flock($fh, LOCK_EX);
+   my $rows = `/bin/tail -$CHECK_ROWS $CHECKMEMLOG`;
+   close($fh);
+
+   my $restart = "false";
+
+   if (scalar split("\n", $rows) == $CHECK_ROWS) {
+      foreach my $row (split("\n", $rows)) {
+         chomp();
+         my @fields = split(' ', $row);
+         if ($fields[0] =~ /^\d\d\d\d/ && scalar @fields == 9 && $fields[6] >= $OLD_GEN_MAX && $fields[8] >= $GC_DELTA_MAX) {
+            $restart = "true";
+         }
+         else {
+            $restart = "false";
+            last;
+         }
+      }
+   }
+
+   if ($restart eq "true" && $opt_r) {
+      `csbounce`;
+
+      if ($? == 0 && $opt_n) {
+         my $service_name = `csservname`;
+         my $hostname = `hostname`;
+
+         chomp($service_name);
+         chomp($hostname);
+
+         my $mail_subject = "csautorestart: high memory use in $service_name on $hostname";
+
+         open(my $mail, "|/bin/mail -s '$mail_subject' $ALERT_EMAIL");
+         print $mail "$service_name "."was restarted successfully.\n\n";
+         close $mail;
+      }
+      elsif ($opt_n) {
+         my $service_name = `csservname`;
+         my $hostname = `hostname`;
+
+         chomp($service_name);
+         chomp($hostname);
+
+         my $mail_subject = "csautorestart: high memory use in $service_name on $hostname";
+
+         open(my $mail, "|/bin/mail -s '$mail_subject' $ALERT_EMAIL");
+         print $mail "$service_name "."was not restarted successfully.\n\n";
+         close $mail;
+      }
+   }
+   elsif ($restart eq "true" && $opt_n) {
+      my $service_name = `csservname`;
+      my $hostname = `hostname`;
+
+      chomp($service_name);
+      chomp($hostname);
+
+      my $mail_subject = "csautorestart: high memory use in $service_name on $hostname";
+
+      open(my $mail, "|/bin/mail -s '$mail_subject' $ALERT_EMAIL");
+      print $mail "$service_name "."restart was not requested.\n\n";
+      close $mail;
+   }
+}
