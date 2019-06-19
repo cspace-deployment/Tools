@@ -118,42 +118,37 @@ with open(sys.argv[1], 'r') as MEDIA:
             blobcsid = restricted_csid
             md5 = restricted_md5
 
-        # if we are regenerating an "internal" core, or if this item is public, we can count it (in facets, etc.)
-        if runtype != 'public' or ispublic == 'public':
 
-            if not check(blobs[objectcsid]['mimetypes'], mimetype):
-                blobs[objectcsid]['mimetypes'].append(mimetype)
+        if not check(blobs[objectcsid]['mimetypes'], mimetype):
+            blobs[objectcsid]['mimetypes'].append(mimetype)
 
-            if not check(blobs[objectcsid]['media_available'], media_available):
-                blobs[objectcsid]['media_available'].append(media_available)
+        if not check(blobs[objectcsid]['media_available'], media_available):
+            blobs[objectcsid]['media_available'].append(media_available)
 
-            if media_available in ['audio', 'video', '3D']:
-                if ispublic == 'public':
-                    blobs[objectcsid]['%s_csids' % media_available].append(blobcsid)
-                    blobs[objectcsid]['%s_md5s' % media_available].append(md5)
-                    blobs[objectcsid]['%s_mimetypes' % media_available].append(mimetype)
+        if media_available in ['audio', 'video', '3D']:
+            if ispublic == 'public':
+                blobs[objectcsid]['%s_csids' % media_available].append(blobcsid)
+                blobs[objectcsid]['%s_md5s' % media_available].append(md5)
+                blobs[objectcsid]['%s_mimetypes' % media_available].append(mimetype)
 
-            elif media_type == 'legacy documentation':
-                blobs[objectcsid]['legacy documentation'].append(blobcsid)
-                blobs[objectcsid]['legacy documentation md5s'].append(md5)
+        elif media_type == 'legacy documentation':
+            blobs[objectcsid]['legacy documentation'].append(blobcsid)
+            blobs[objectcsid]['legacy documentation md5s'].append(md5)
 
-            elif media_type == 'images':
-                # add this blob to the list of blobs, unless we somehow already have it (no dups allowed!)
-                if not check(blobs[objectcsid]['images'], blobcsid):
-                    blobs[objectcsid]['hasimages'] = 'yes'
-                    # put primary images first
-                    if primarydisplay == 't':
-                        blobs[objectcsid]['images'].insert(0, blobcsid)
-                        blobs[objectcsid]['image_md5s'].insert(0, md5)
-                        blobs[objectcsid]['primary'] = blobcsid
-                        blobs[objectcsid]['primary_md5'] = md5
+        elif media_type == 'images':
+            # add this blob to the list of blobs, unless we somehow already have it (no dups allowed!)
+            if not check(blobs[objectcsid]['images'], blobcsid):
+                blobs[objectcsid]['hasimages'] = 'yes'
+                # put primary images first
+                if primarydisplay == 't':
+                    blobs[objectcsid]['images'].insert(0, blobcsid)
+                    blobs[objectcsid]['image_md5s'].insert(0, md5)
+                    blobs[objectcsid]['primary'] = [blobcsid]
+                    blobs[objectcsid]['primary_md5'] = [md5]
 
-                    else:
-                        blobs[objectcsid]['images'].append(blobcsid)
-                        blobs[objectcsid]['image_md5s'].append(md5)
-
-            else:
-                pass
+                else:
+                    blobs[objectcsid]['images'].append(blobcsid)
+                    blobs[objectcsid]['image_md5s'].append(md5)
 
         if not check(blobs[objectcsid]['type'], media_type): blobs[objectcsid]['type'].append(media_type)
         if not check(blobs[objectcsid]['restrictions'], ispublic): blobs[objectcsid]['restrictions'].append(ispublic)
@@ -198,8 +193,10 @@ with open(sys.argv[2], 'r') as METADATA:
             # insert list of blobs, etc. as final columns
             if not blobs[objectcsid]['hasimages'] == 'yes': blobs[objectcsid]['hasimages'] = 'no'
             count['hasimages: %s' % blobs[objectcsid]['hasimages']] += 1
+            # TODO: fix the type of this field -- it should have to be a list
+            blobs[objectcsid]['hasimages'] = [blobs[objectcsid]['hasimages']]
             for column in 'images,image_md5s,legacy documentation,legacy documentation md5s,primary,primary_md5,type,restrictions,hasimages,video_csids,video_md5s,video_mimetypes,audio_csids,audio_md5s,audio_mimetypes,3D_csids,3D_md5s,3D_mimetypes,media_available,mimetypes'.split(','):
-                mediablobs.append('|'.join(sorted(blobs[objectcsid][column])))
+                mediablobs.append('|'.join(blobs[objectcsid][column]))
 
             count['object type: ' + ','.join(sorted(blobs[objectcsid]['type']))] += 1
             count['object restrictions: ' + ','.join(sorted(blobs[objectcsid]['restrictions']))] += 1
