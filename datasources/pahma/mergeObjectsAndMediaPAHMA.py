@@ -123,7 +123,8 @@ with open(sys.argv[1], 'r') as MEDIA:
             blobs[objectcsid]['mimetypes'].append(mimetype)
 
         if not check(blobs[objectcsid]['media_available'], media_available):
-            blobs[objectcsid]['media_available'].append(media_available)
+            if ispublic == 'public':
+                blobs[objectcsid]['media_available'].append(media_available)
 
         if media_available in ['audio', 'video', '3D']:
             if ispublic == 'public':
@@ -193,8 +194,16 @@ with open(sys.argv[2], 'r') as METADATA:
             # insert list of blobs, etc. as final columns
             if not blobs[objectcsid]['hasimages'] == 'yes': blobs[objectcsid]['hasimages'] = 'no'
             count['hasimages: %s' % blobs[objectcsid]['hasimages']] += 1
-            # TODO: fix the type of this field -- it should have to be a list
+            # TODO: fix the type of this field -- it shouldn't have to be a list
             blobs[objectcsid]['hasimages'] = [blobs[objectcsid]['hasimages']]
+            # if the object has 3D media, remove any placeholder image that might be been inserted:
+            # the texture files for 3D media are of course unpublished, but should not trigger a placeholder
+            # HOWEVER, if said object is itself restricted, leave things as they are: there should be a placeholder
+            # TODO: but figure out how to distinguish texture images and other images: if the only
+            # TODO: images are texture images, we SHOULD eliminate the placeholder!
+            if blobs[objectcsid]['3D_csids'] != []:
+                blobs[objectcsid]['image_md5s'] = [i for i in blobs[objectcsid]['image_md5s'] if i != restricted_md5]
+                blobs[objectcsid]['images'] = [i for i in blobs[objectcsid]['images'] if i != restricted_csid]
             for column in 'images,image_md5s,legacy documentation,legacy documentation md5s,primary,primary_md5,type,restrictions,hasimages,video_csids,video_md5s,video_mimetypes,audio_csids,audio_md5s,audio_mimetypes,3D_csids,3D_md5s,3D_mimetypes,media_available,mimetypes'.split(','):
                 mediablobs.append('|'.join(blobs[objectcsid][column]))
 
