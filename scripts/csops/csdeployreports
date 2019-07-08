@@ -3,30 +3,31 @@
 # Update and deploy reports.
 
 SOURCE_DIR=~/src/cspace-deployment
-TOOLS_DIR=$SOURCE_DIR/Tools
-DEPLOYMENT_NAME=`csname`
-REPORT_DIR=$CATALINA_HOME/cspace/reports
+#SERVICES_DIR=$SOURCE_DIR/services
+#DEPLOYMENT_NAME=`csname`
+REPORT_DIR_SRC=$SOURCE_DIR/services/services/report/3rdparty/jasper-cs-report/src/main/resources
+REPORT_DIR_DST=$CATALINA_HOME/cspace/reports
 IMAGE_DEST_DIR=$CATALINA_HOME/webapps/reports/images
 LIB_DEST_DIR=$CATALINA_HOME/lib
 
-cd $TOOLS_DIR
+#cd $SERVICES_DIR
 
 echo "Deploying reports..."
 
-cp reports/$DEPLOYMENT_NAME/*.jrxml $REPORT_DIR
+cp $REPORT_DIR_SRC/*.jrxml $REPORT_DIR_DST
 
-if ls $REPORT_DIR/*.jasper &> /dev/null; then
-	rm $REPORT_DIR/*.jasper
+if ls $REPORT_DIR_DST/*.jasper &> /dev/null; then
+	rm $REPORT_DIR_DST/*.jasper
 fi
 
-IMAGE_SRC_DIR=reports/$DEPLOYMENT_NAME/images
+IMAGE_SRC_DIR=$REPORT_DIR_SRC/images
 
 if ls $IMAGE_SRC_DIR/* &> /dev/null; then
 	mkdir -p $IMAGE_DEST_DIR
 	cp $IMAGE_SRC_DIR/* $IMAGE_DEST_DIR
 fi
 
-LIB_SRC_DIR=reports/$DEPLOYMENT_NAME/lib
+LIB_SRC_DIR=$REPORT_DIR_SRC/lib
 
 if ls $LIB_SRC_DIR/* &> /dev/null; then
 	mkdir -p $LIB_DEST_DIR
