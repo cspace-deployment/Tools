@@ -27,7 +27,7 @@ if ls $IMAGE_SRC_DIR/* &> /dev/null; then
 	cp $IMAGE_SRC_DIR/* $IMAGE_DEST_DIR
 fi
 
-LIB_SRC_DIR=$REPORT_DIR_SRC/images/lib
+LIB_SRC_DIR=$REPORT_DIR_SRC/lib
 
 if ls $LIB_SRC_DIR/* &> /dev/null; then
 	mkdir -p $LIB_DEST_DIR
