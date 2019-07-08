@@ -59,6 +59,13 @@ declare -A config=(
 	[bampfa-dev_db_host]=dba-postgres-dev-42.ist.berkeley.edu
 	[bampfa-dev_db_port]=5114
 
+	[core-dev_tomcat_port_shutdown]=8018
+	[core-dev_tomcat_port_http]=8088
+	[core-dev_tomcat_port_ajp]=8008
+	[core-dev_tomcat_java_opts]="-Xmx1024m"
+	[core-dev_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[core-dev_db_port]=5114
+
 	[pahma_tomcat_port_shutdown]=8017
 	[pahma_tomcat_port_http]=8087
 	[pahma_tomcat_port_ajp]=8007
@@ -109,9 +116,9 @@ if [ ! -d tmp ]; then
 fi
 
 cd tmp
-wget -nv ftp://nightly.collectionspace.org/pub/collectionspace/releases/5.0/cspace-server-5.0.tar.gz
-tar -zxf cspace-server-5.0.tar.gz
-rm cspace-server-5.0.tar.gz
+wget -nv ftp://nightly.collectionspace.org/pub/collectionspace/releases/5.1/cspace-server-5.1.tar.gz
+tar -zxf cspace-server-5.1.tar.gz
+rm cspace-server-5.1.tar.gz
 
 cd $TOMCAT_DIR
 cp -rn ~/tmp/apache-tomcat-7.0.64/lib .
