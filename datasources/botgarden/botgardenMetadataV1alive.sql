@@ -1,7 +1,7 @@
 select
     co.id as id,
     co.objectnumber as AccessionNumber_s,
-    regexp_replace(tig.taxon, '^.*\)''(.*)''$', '\1') as Determination_s,
+    findhybridaffinname(tig.id) as Determination_s,
     regexp_replace(fc.item, '^.*\)''(.*)''$', '\1') as Collector_s,
     co.fieldcollectionnumber as CollectorNumber_s,
     sdg.datedisplaydate as CollectionDate_s,
