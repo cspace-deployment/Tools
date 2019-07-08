@@ -3,9 +3,9 @@
 # Update and deploy reports.
 
 SOURCE_DIR=~/src/cspace-deployment
-SERVICES_DIR=$SOURCE_DIR/services
+#SERVICES_DIR=$SOURCE_DIR/services
 #DEPLOYMENT_NAME=`csname`
-REPORT_DIR_SRC=$SOURCE_DIR/services/report/3rdparty/jasper-cs-report/src/main/resources
+REPORT_DIR_SRC=$SOURCE_DIR/services/services/report/3rdparty/jasper-cs-report/src/main/resources
 REPORT_DIR_DST=$CATALINA_HOME/cspace/reports
 IMAGE_DEST_DIR=$CATALINA_HOME/webapps/reports/images
 LIB_DEST_DIR=$CATALINA_HOME/lib
