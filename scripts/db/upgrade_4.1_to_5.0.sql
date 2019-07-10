@@ -1,5 +1,5 @@
 -- Upgrade a cspace database from 4.1 to 5.0.
--- This script should be run in the cspace_{tenantname} database, as the cspace_{tenantname} user.
+-- This script should be run in the cspace_{instanceid} database, as the cspace_{instanceid} user.
 
 alter table tenants add column config_md5hash varchar(255);
 alter table tenants add column authorities_initialized boolean;
