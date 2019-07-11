@@ -25,7 +25,7 @@ select
     lg.coorduncertaintyunit as CoordinateUncertaintyUnit_s,
 
     regexp_replace(tn.family, '^.*\)''(.*)''$', '\1') as family_s,
-    '' gardenlocation_ss, -- dead accessions should have no gardenlocations
+    '' gardenlocation_s, -- dead accessions should have no gardenlocations
     co.recordstatus dataQuality_s,
 case when (lg.fieldlocplace is not null and lg.fieldlocplace <> '') then regexp_replace(lg.fieldlocplace, '^.*\)''(.*)''$', '\1')
      when (lg.fieldlocplace is null and lg.taxonomicrange is not null) then 'Geographic range: '||lg.taxonomicrange
@@ -67,7 +67,9 @@ array_to_string(array
     join hierarchy h16 ON (rc.objectcsid = h16.name)
     left outer join groups_common gc ON (h16.id = gc.id)
     join misc mm ON (gc.id=mm.id AND mm.lifecyclestate <> 'deleted')
-    where h2int.name = h1.name), '|', '') as grouptitle_ss
+    where h2int.name = h1.name), '|', '') as grouptitle_ss,
+tig.hybridflag as hybridflag_s,
+tc.taxonisnamedhybrid as taxonisnamedhybrid_s
 
 from collectionobjects_common co
 inner join misc on (co.id = misc.id and misc.lifecyclestate <> 'deleted')
@@ -91,8 +93,8 @@ left outer join localitygroup lg on (lg.id = hlg.id)
 
 left outer join hierarchy h1 on co.id=h1.id
 
-left outer join collectionobjects_naturalhistory con on (co.id = con.id)
-left outer join collectionobjects_botgarden cob on (co.id=cob.id)
+left join collectionobjects_naturalhistory con on (co.id = con.id)
+left join collectionobjects_botgarden cob on (co.id=cob.id)
 left outer join collectionobjects_common_comments coc  on (co.id = coc.id and coc.pos = 0)
 
 left outer join taxon_common tc on (tig.taxon=tc.refname)

@@ -25,18 +25,7 @@ select
     lg.coorduncertaintyunit as CoordinateUncertaintyUnit_s,
 
     regexp_replace(tn.family, '^.*\)''(.*)''$', '\1') as family_s,
-    -- regexp_replace(mc.currentlocation, '^.*\)''(.*)''$', '\1') as gardenlocation_s,
-
-    array_to_string(array
-    (SELECT CASE WHEN (mxc.currentlocation IS NOT NULL AND mxc.currentlocation <> '') THEN regexp_replace(mxc.currentlocation, '^.*\)''(.*)''$', '\1') END
-    from collectionobjects_common co2
-    left outer join hierarchy hx1 on co2.id=hx1.id
-    join relations_common rx1 on (hx1.name=rx1.subjectcsid and objectdocumenttype='Movement')
-    left outer join hierarchy hx2 on (rx1.objectcsid=hx2.name and hx2.isversion is not true)
-    join movements_common mxc on (mxc.id=hx2.id)
-    inner join misc misc1 on (misc1.id = mxc.id and misc1.lifecyclestate <> 'deleted') -- movement not deleted
-    where hx1.name = h1.name), '|', '') as gardenlocation_ss,
-
+    regexp_replace(mc.currentlocation, '^.*\)''(.*)''$', '\1') as gardenlocation_s,
 co.recordstatus dataQuality_s,
 case when (lg.fieldlocplace is not null and lg.fieldlocplace <> '') then regexp_replace(lg.fieldlocplace, '^.*\)''(.*)''$', '\1')
      when (lg.fieldlocplace is null and lg.taxonomicrange is not null) then 'Geographic range: '||lg.taxonomicrange
@@ -47,8 +36,7 @@ case when (cob.deadflag = 'true') then 'yes' else 'no' end as deadflag_s,
 cob.flowercolor as flowercolor_s,
 '' as determinationNoAuth_s,
 -- regexp_replace(tig2.taxon, '^.*\)''(.*)''$', '\1') as determinationNoAuth_s,
-'' as reasonformove_s,
--- regexp_replace(mc.reasonformove, '^.*\)''(.*)''$', '\1') as reasonformove_s,
+regexp_replace(mc.reasonformove, '^.*\)''(.*)''$', '\1') as reasonformove_s,
 
 utils.findconserveinfo(tc.refname) as conservationinfo_ss,
 utils.findconserveorg(tc.refname) as conserveorg_ss,
@@ -81,7 +69,9 @@ array_to_string(array
     join hierarchy h16 ON (rc.objectcsid = h16.name)
     left outer join groups_common gc ON (h16.id = gc.id)
     join misc mm ON (gc.id=mm.id AND mm.lifecyclestate <> 'deleted')
-    where h2int.name = h1.name), '|', '') as grouptitle_ss
+    where h2int.name = h1.name), '|', '') as grouptitle_ss,
+tig.hybridflag as hybridflag_s,
+tc.taxonisnamedhybrid as taxonisnamedhybrid_s
 
 
 from collectionobjects_common co
@@ -105,11 +95,20 @@ left outer join hierarchy hlg
 left outer join localitygroup lg on (lg.id = hlg.id)
 
 left outer join hierarchy h1 on co.id=h1.id
+join relations_common r1 on (h1.name=r1.subjectcsid and objectdocumenttype='Movement')
+left outer join hierarchy h2 on (r1.objectcsid=h2.name and h2.isversion is not true)
+join movements_common mc on (mc.id=h2.id)
+inner join misc misc1 on (misc1.id = mc.id and misc1.lifecyclestate <> 'deleted') -- movement not deleted
 
-left outer join collectionobjects_naturalhistory con on (co.id = con.id)
-left outer join collectionobjects_botgarden cob on (co.id=cob.id and cob.deadflag='false')
+-- left outer join hierarchy h1 on co.id=h1.id
+-- left outer join relations_common r1 on (h1.name=r1.subjectcsid and objectdocumenttype='Movement')
+-- left outer join hierarchy h2 on (r1.objectcsid=h2.name and h2.isversion is not true)
+-- left outer join movements_common mc on (mc.id=h2.id)
+-- left outer join misc misc1 on (misc1.id = mc.id and misc1.lifecyclestate <> 'deleted') -- movement not deleted
+
+left join collectionobjects_naturalhistory con on (co.id = con.id)
+left join collectionobjects_botgarden cob on (co.id=cob.id and cob.deadflag='false')
 left outer join collectionobjects_common_comments coc  on (co.id = coc.id and coc.pos = 0)
 
 left outer join taxon_common tc on (tig.taxon=tc.refname)
 left outer join taxon_naturalhistory tn on (tc.id=tn.id)
-where cob.deadflag!='true'
