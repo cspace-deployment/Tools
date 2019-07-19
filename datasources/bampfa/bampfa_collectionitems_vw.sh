@@ -9,6 +9,7 @@ SERVER="dba-postgres-prod-42.ist.berkeley.edu port=5313 sslmode=prefer"
 USERNAME="reporter_$TENANT"
 DATABASE="${TENANT}_domain_${TENANT}"
 CONNECTSTRING="host=$SERVER dbname=$DATABASE"
+CONTACT="osanchez@berkeley.edu"
 ##############################################################################
 # 
 ##############################################################################
@@ -17,6 +18,6 @@ time psql -R"@@" -A -U $USERNAME -d "$CONNECTSTRING"  -c "select * from utils.${
 time perl -i -pe 's/[\r\n]/ /g;s/\@\@/\n/g;s/\|/\t/g;' ${TENANT}_collectionitems_vw.tab
 rm ${TENANT}_collectionitems_vw.tab.gz
 gzip ${TENANT}_collectionitems_vw.tab
-mail -a ${TENANT}_collectionitems_vw.tab.gz -s "${TENANT}_collectionitems_vw.csv.gz" -- osanchez@berkeley.edu < /dev/null
+mail -A ${TENANT}_collectionitems_vw.tab.gz -s "${TENANT}_collectionitems_vw.csv.gz" -- ${CONTACT} < /dev/null
 #
 date

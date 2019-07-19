@@ -9,6 +9,7 @@ SERVER="dba-postgres-prod-42.ist.berkeley.edu port=5415 sslmode=prefer"
 USERNAME="piction"
 DATABASE="piction_transit"
 CONNECTSTRING="host=$SERVER dbname=$DATABASE"
+CONTACT="cspace-piction-view@lists.berkeley.edu"
 ##############################################################################
 # 
 ##############################################################################
@@ -18,6 +19,6 @@ time psql -R"@@" -A -U $USERNAME -d "$CONNECTSTRING"  -c "select * from piction.
 time perl -i -pe 's/[\r\n]/ /g;s/\@\@/\n/g;s/\|/\t/g;' ${TENANT}_pictionview_vw.tab
 rm ${TENANT}_pictionview_vw.tab.gz
 gzip ${TENANT}_pictionview_vw.tab
-mail -a ${TENANT}_pictionview_vw.tab.gz -s "${TENANT}_pictionview_vw.csv.gz" -- cspace-piction-view@lists.berkeley.edu < /dev/null
+mail -A ${TENANT}_pictionview_vw.tab.gz -s "${TENANT}_pictionview_vw.csv.gz" -- ${CONTACT} < /dev/null
 #
 date
