@@ -232,6 +232,8 @@
     <copyField source="subjectfour_s" dest="subjectfour_txt"/>
     <copyField source="subjectfive_s" dest="subjectfive_txt"/>
     <copyField source="currentlocation_s" dest="currentlocation_txt"/>
+    <copyField source="century_s" dest="century_txt"/>
+    <copyField source="grouptitle_ss" dest="grouptitle_txt"/>
 
    <copyField source="*_s" dest="text"/>
    <copyField source="*_ss" dest="text"/>
