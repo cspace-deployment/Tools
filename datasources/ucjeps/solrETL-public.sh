@@ -92,7 +92,7 @@ cp counts.public.final.csv /tmp/$TENANT.counts.public.csv
 wc -l *.csv
 # send the errors off to be dealt with
 tar -czf counts.tgz counts.*.csv
-./make_error_report.sh | mail -a counts.tgz -s "UCJEPS Solr Refresh Counts and Errors `date`" ${CONTACT}
+./make_error_report.sh | mail -A counts.tgz -s "UCJEPS Solr Refresh Counts and Errors `date`" ${CONTACT}
 # get rid of intermediate files
 rm d?.csv m?.csv metadata.csv media.csv
 # count blobs

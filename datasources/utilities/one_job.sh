@@ -10,8 +10,7 @@
 #
 # 1. run the 13 solr4 updates
 # 2. monitor solr datastore contents (email contents)
-# 3. export and mail BAMPFA view for Orlando
-# 4. export and mail Piction view for MCQ
+# 3. export and mail BAMPFA and Piction view results museum staff
 #
 # some notes:
 #
