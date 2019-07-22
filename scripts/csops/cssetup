@@ -21,6 +21,10 @@ if [[ `hostname` = *-dev-* ]]; then
 	DEV="-dev"
 fi
 
+if [[ `hostname` = *-qa-* ]]; then
+	DEV="-qa"
+fi
+
 VHOST=$DEPLOYMENT_NAME$DEV.cspace.berkeley.edu
 
 declare -A config=(
@@ -65,6 +69,48 @@ declare -A config=(
 	[core-dev_tomcat_java_opts]="-Xmx1024m"
 	[core-dev_db_host]=dba-postgres-dev-42.ist.berkeley.edu
 	[core-dev_db_port]=5114
+
+	[pahma-qa_tomcat_port_shutdown]=8017
+	[pahma-qa_tomcat_port_http]=8087
+	[pahma-qa_tomcat_port_ajp]=8007
+	[pahma-qa_tomcat_java_opts]="-Xmx4g -Xms1g -XX:GCTimeRatio=7"
+	[pahma-qa_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[pahma-qa_db_port]=5107
+
+	[ucjeps-qa_tomcat_port_shutdown]=8011
+	[ucjeps-qa_tomcat_port_http]=8081
+	[ucjeps-qa_tomcat_port_ajp]=8001
+	[ucjeps-qa_tomcat_java_opts]="-Xmx1024m"
+	[ucjeps-qa_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[ucjeps-qa_db_port]=5110
+
+	[botgarden-qa_tomcat_port_shutdown]=8016
+	[botgarden-qa_tomcat_port_http]=8086
+	[botgarden-qa_tomcat_port_ajp]=8006
+	[botgarden-qa_tomcat_java_opts]="-Xmx1024m"
+	[botgarden-qa_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[botgarden-qa_db_port]=5113
+
+	[cinefiles-qa_tomcat_port_shutdown]=8014
+	[cinefiles-qa_tomcat_port_http]=8084
+	[cinefiles-qa_tomcat_port_ajp]=8004
+	[cinefiles-qa_tomcat_java_opts]="-Xmx1024m"
+	[cinefiles-qa_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[cinefiles-qa_db_port]=5113
+
+	[bampfa-qa_tomcat_port_shutdown]=8013
+	[bampfa-qa_tomcat_port_http]=8083
+	[bampfa-qa_tomcat_port_ajp]=8003
+	[bampfa-qa_tomcat_java_opts]="-Xmx1024m"
+	[bampfa-qa_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[bampfa-qa_db_port]=5113
+
+	[core-qa_tomcat_port_shutdown]=8018
+	[core-qa_tomcat_port_http]=8088
+	[core-qa_tomcat_port_ajp]=8008
+	[core-qa_tomcat_java_opts]="-Xmx1024m"
+	[core-qa_db_host]=dba-postgres-dev-42.ist.berkeley.edu
+	[core-qa_db_port]=5113
 
 	[pahma_tomcat_port_shutdown]=8017
 	[pahma_tomcat_port_http]=8087
