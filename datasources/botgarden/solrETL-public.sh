@@ -35,16 +35,6 @@ time perl -ne 'print unless /\(\d+ rows\)/' d2.csv > d3.csv
 ##############################################################################
 time python evaluate.py d3.csv d4.csv > counts.public.csv
 ##############################################################################
-# eliminate restricted items from public dataset
-# nb: at this time we're not doing this, instead we are obfuscating their
-# garden locations in a step further below...
-##############################################################################
-#perl -i -ne '@x = split /\t/;print unless $x[57] =~ /Restricted/' d4.csv
-##############################################################################
-# obfuscate locations of sensitive accesssions
-##############################################################################
-perl -i -ne '@x = split /\t/;if ($x[44] =~ /Restricted/) {@x[24] = "Location Restricted" if  @x[24] ne "" ; @x[8]="Undisclosed"  if  @x[8] ne ""}; print join "\t",@x;' d4.csv
-##############################################################################
 # run the media query
 ##############################################################################
 time psql -F $'\t' -R"@@" -A -U $USERNAME -d "$CONNECTSTRING" -f media.sql  -o i4.csv
@@ -76,9 +66,21 @@ grep -P "^1\tid\t" metadata+parsednames.csv | head -1 > header4Solr.csv
 perl -i -pe 's/^1\tid/id\tobjcsid_s/' header4Solr.csv
 perl -i -pe 's/\r//;s/$/\tblob_ss/' header4Solr.csv
 grep -v -P "^1\tid\t" metadata+parsednames.csv > d7.csv
-python fixfruits.py d7.csv > d8.csv
+python fixfruits.py d7.csv > public.metadata.csv
 ##############################################################################
-# add the blob csids to the rest of the internal
+# eliminate restricted items from public dataset
+# nb: at this time we're not doing this, instead we are obfuscating their
+# garden locations in a step further below...
+##############################################################################
+#perl -i -ne '@x = split /\t/;print unless $x[57] =~ /Restricted/' d4.csv
+##############################################################################
+# up to here, both public and internal extracts are the same.
+##############################################################################
+# obfuscate locations of sensitive accesssions
+##############################################################################
+perl -ne '@x = split /\t/;if ($x[44] =~ /Restricted/) {@x[24] = "Location Restricted" if  @x[24] ne "" ; @x[8]="Undisclosed"  if  @x[8] ne ""}; print join "\t",@x;' public.metadata.csv > d8.csv
+##############################################################################
+# add the blob csids
 ##############################################################################
 time perl mergeObjectsAndMedia.pl 4solr.$TENANT.media.csv d8.csv public > d9.csv
 cat header4Solr.csv d9.csv | perl -pe 's/␥/|/g' > d10.csv
@@ -110,5 +112,6 @@ cat counts.public.blobs.csv
 cp counts.public.csv /tmp/$TENANT.counts.public.csv
 rm d?.csv d??.csv m?.csv metadata*.csv
 # zip up .csvs, save a bit of space on backups
-gzip -f 4solr.$TENANT.public.csv 4solr.$TENANT.media.csv counts.*.csv
+# (nb: don't gzip the 4solr..media.csv file here ... the internal refresh needs it!
+gzip -f 4solr.$TENANT.public.csv counts.*.csv
 date
