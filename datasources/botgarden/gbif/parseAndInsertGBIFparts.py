@@ -31,8 +31,7 @@ import sys
 import json
 import time
 import os
-# import csv
-import codecs
+import csv
 
 # empty class for counts
 class count:
@@ -85,30 +84,29 @@ def check4cultivars(name):
 
 def main():
     if len(sys.argv) < 4:
-        print 'usage: %s inputfileofnames.csv outputnameparts.csv picklefile column' % sys.argv[0]
+        print('usage: %s inputfileofnames.csv outputnameparts.csv picklefile column' % sys.argv[0])
         sys.exit(1)
 
     namecolumn = 0
     try:
         namecolumn = int(sys.argv[4])
     except:
-        print "column is not an integer: %s " % sys.argv[4]
+        print("column is not an integer: %s " % sys.argv[4])
         sys.exit(1)
 
     try:
         namepartsfile = sys.argv[2]
-        # namepartsfh = csv.writer(open(namepartsfile, "wb"), delimiter='\t')
-        namepartsfh = open(namepartsfile, "wb")
+        namepartsfh = csv.writer(open(namepartsfile, "w"), delimiter='\t')
         #namepartsfh.write('\t'.join(nameparts) + '\n')
     except:
-        print "could not open output file"
+        print("could not open output file")
         sys.exit(1)
 
     try:
         picklefile = sys.argv[3]
         picklefh = open(picklefile, "rb")
     except:
-        print "could not open pickle file, will try to create"
+        print("could not open pickle file, will try to create")
         picklefh = open(picklefile, "wb")
         pickle.dump({}, picklefh)
         picklefh.close()
@@ -117,17 +115,17 @@ def main():
     try:
         parsednames = pickle.load(picklefh)
         picklefh.close()
-        print "%s names in datasource." % len(parsednames.keys())
+        print("%s names in datasource." % len(parsednames.keys()))
     except:
         raise
-        print "could not parse data in picklefile %s" % picklefile
+        print("could not parse data in picklefile %s" % picklefile)
         sys.exit(1)
 
     try:
-        inputfile = codecs.open(sys.argv[1], "rb", "utf-8")
+        inputfile = open(sys.argv[1], "r")
     except:
         raise
-        print "could not open input file %s" % sys.argv[1]
+        print("could not open input file %s" % sys.argv[1])
         sys.exit(1)
 
     for line in inputfile:
@@ -166,26 +164,26 @@ def main():
             row = [h + '_s' for h in nameparts]
         cells = [x.encode('utf-8') for x in cells]
         cells = cells[:namecolumn] + row + cells[namecolumn:]
-        namepartsfh.write('\t'.join(cells) + '\n')
+        namepartsfh.writerow(cells)
 
     try:
         pickle.dump(parsednames, open(picklefile, "wb"))
         count.datasource = len(parsednames.keys())
     except:
-        print "could not write names to picklefile %s" % picklefile
+        print("could not write names to picklefile %s" % picklefile)
         sys.exit(1)
 
-    print "%s names input." % count.input
-    print "%s parsenames output." % count.output
-    print "%s new names found." % count.newnames
-    print "%s names now in datasource." % count.datasource
-    print "%s cultivars indicated already (i.e 'cv.' in original)." % count.cultivarsinoriginal
-    print "%s total cultivars identified." % count.cultivars
+    print("%s names input." % count.input)
+    print("%s parsenames output." % count.output)
+    print("%s new names found." % count.newnames)
+    print("%s names now in datasource." % count.datasource)
+    print("%s cultivars indicated already (i.e 'cv.' in original)." % count.cultivarsinoriginal)
+    print("%s total cultivars identified." % count.cultivars)
 
     print
-    print 'name parts:'
+    print('name parts:')
     for p in parts.keys():
-        print "%s: %s" % (p, parts[p])
+        print("%s: %s" % (p, parts[p]))
 
 
 if __name__ == '__main__':
