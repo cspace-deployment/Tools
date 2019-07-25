@@ -53,8 +53,8 @@ for i in $(seq 1 1 20; seq 40 1 60)
 do
  if [ -e part$i.sql ]; then
      time psql -F $'\t' -R"@@" -A -U $USERNAME -d "$CONNECTSTRING" -f part$i.sql | perl -pe 's/[\r\n]/ /g;s/\@\@/\n/g' | sort > part$i.csv
-     time python join.py restricted.csv part$i.csv > temp1.csv &
-     time python join.py internal.csv part$i.csv > temp2.csv &
+     time python3 join.py restricted.csv part$i.csv > temp1.csv &
+     time python3 join.py internal.csv part$i.csv > temp2.csv &
      wait
      mv temp1.csv restricted.csv
      mv temp2.csv internal.csv
@@ -67,7 +67,7 @@ for i in {21..30}
 do
  if [ -e part$i.sql ]; then
     time psql -F $'\t' -R"@@" -A -U $USERNAME -d "$CONNECTSTRING" -f part$i.sql | perl -pe 's/[\r\n]/ /g;s/\@\@/\n/g' | sort > part$i.csv
-    time python join.py internal.csv part$i.csv > temp.csv
+    time python3 join.py internal.csv part$i.csv > temp.csv
     mv temp.csv internal.csv
  fi
 done
@@ -97,8 +97,8 @@ cat header4Solr.csv d8.csv | perl -pe 's/␥/|/g' > internal.csv
 time perl -pe 's/\r//g;s/\\/\//g;s/\t"/\t/g;s/"\t/\t/g;s/\"\"/"/g' restricted.csv > d6a.csv &
 time perl -pe 's/\r//g;s/\\/\//g;s/\t"/\t/g;s/"\t/\t/g;s/\"\"/"/g' internal.csv > d6b.csv &
 wait
-time python evaluate.py d6a.csv temp.public.csv > counts.public.rawdata.csv &
-time python evaluate.py d6b.csv temp.internal.csv > counts.internal.rawdata.csv &
+time python3 evaluate.py d6a.csv temp.public.csv > counts.public.rawdata.csv &
+time python3 evaluate.py d6b.csv temp.internal.csv > counts.internal.rawdata.csv &
 wait
 ##############################################################################
 # check latlongs for public datastore
@@ -117,8 +117,8 @@ mv d6b.csv temp.internal.csv
 # add the blob and card csids and other flags to the rest of the metadata
 # nb: has dependencies on the media file order; less so on the metadata.
 ##############################################################################
-time python mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.public.csv public d6a.csv &
-time python mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.internal.csv internal d6b.csv &
+time python3 mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.public.csv public d6a.csv &
+time python3 mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.internal.csv internal d6b.csv &
 wait
 mv d6a.csv temp.public.csv
 mv d6b.csv temp.internal.csv
@@ -133,7 +133,7 @@ wait
 #  nb: this script has dependencies on 4 columns in the input file.
 #      if you change them or other order, you'll need to modify this script.
 ##############################################################################
-time python obfuscateUSArchaeologySites.py d6a.csv d7.csv
+time python3 obfuscateUSArchaeologySites.py d6a.csv d7.csv
 ##############################################################################
 # clean up some outstanding sins perpetuated by obfuscateUSArchaeologySites.py
 ##############################################################################
@@ -148,7 +148,7 @@ cat header4Solr.csv d8.csv | perl -pe 's/␥/|/g' > d9.csv
 ##############################################################################
 # compute _i values for _dt values (to support BL date range searching
 ##############################################################################
-time python computeTimeIntegersPAHMA.py d9.csv 4solr.${TENANT}.public.csv > counts.date_hacks.csv
+time python3 computeTimeIntegersPAHMA.py d9.csv 4solr.${TENANT}.public.csv > counts.date_hacks.csv
 #
 time grep -P "^id\t" d6b.csv > header4Solr.csv &
 time grep -v -P "^id\t" d6b.csv > d8.csv &
@@ -157,7 +157,7 @@ cat header4Solr.csv d8.csv | perl -pe 's/␥/|/g' > d9.csv
 ##############################################################################
 # compute _i values for _dt values (to support BL date range searching
 ##############################################################################
-time python computeTimeIntegers.py d9.csv 4solr.${TENANT}.internal.csv
+time python3 computeTimeIntegers.py d9.csv 4solr.${TENANT}.internal.csv
 wc -l *.csv
 ##############################################################################
 # ok, now let's load this into solr...
@@ -173,8 +173,8 @@ time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-public/update/csv?
 ##############################################################################
 # while that's running, clean up, generate some stats, mail reports
 ##############################################################################
-time python evaluate.py 4solr.${TENANT}.public.csv /dev/null > counts.public.final.csv &
-time python evaluate.py 4solr.${TENANT}.internal.csv /dev/null > counts.internal.final.csv &
+time python3 evaluate.py 4solr.${TENANT}.public.csv /dev/null > counts.public.final.csv &
+time python3 evaluate.py 4solr.${TENANT}.internal.csv /dev/null > counts.internal.final.csv &
 wait
 cp counts.public.final.csv /tmp/${TENANT}.counts.public.csv
 cp counts.internal.final.csv /tmp/${TENANT}.counts.internal.csv

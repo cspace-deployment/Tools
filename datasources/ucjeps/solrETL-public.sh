@@ -29,7 +29,7 @@ time perl -pe 's/[\r\n]/ /g;s/\@\@/\n/g' d1.csv | perl -ne 'next if / rows/; pri
 ##############################################################################
 # count the types and tokens in the sql output, check cell counts
 ##############################################################################
-time python evaluate.py d3.csv metadata.csv > counts.public.rawdata.csv
+time python3 evaluate.py d3.csv metadata.csv > counts.public.rawdata.csv
 ##############################################################################
 # get media
 ##############################################################################
@@ -87,7 +87,7 @@ time curl -X POST -S -s 'http://localhost:8983/solr/ucjeps-public/update/csv?com
 ##############################################################################
 # while that's running, clean up, generate some stats, mail reports
 ##############################################################################
-time python evaluate.py 4solr.${TENANT}.public.csv /dev/null > counts.public.final.csv
+time python3 evaluate.py 4solr.${TENANT}.public.csv /dev/null > counts.public.final.csv
 cp counts.public.final.csv /tmp/$TENANT.counts.public.csv
 wc -l *.csv
 # send the errors off to be dealt with

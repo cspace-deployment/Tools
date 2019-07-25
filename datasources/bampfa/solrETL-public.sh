@@ -32,7 +32,7 @@ time perl -pe 's/[\r\n]/ /g;s/\@\@/\n/g' d1.csv > d3.csv
 ##############################################################################
 # check cell counts
 ##############################################################################
-time python evaluate.py d3.csv d4.csv > counts.public.errors.csv
+time python3 evaluate.py d3.csv d4.csv > counts.public.errors.csv
 time psql -R"@@" -F $'\t' -A -U $USERNAME -d "$CONNECTSTRING" -f media_public.sql -o m1.csv
 time perl -pe 's/[\r\n]/ /g;s/\@\@/\n/g' m1.csv > media.csv 
 time psql -R"@@" -F $'\t' -A -U $USERNAME -d "$CONNECTSTRING" -f blobs.sql -o b1.csv
@@ -51,7 +51,7 @@ cat header4Solr.csv d7.csv > d8.csv
 ##############################################################################
 # compute _i values for _dt values (to support BL date range searching)
 ##############################################################################
-time python computeTimeIntegers.py d8.csv 4solr.$TENANT.public.csv
+time python3 computeTimeIntegers.py d8.csv 4solr.$TENANT.public.csv
 wc -l *.csv
 # clear out the existing data
 curl -S -s "http://localhost:8983/solr/${TENANT}-public/update" --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
@@ -64,7 +64,7 @@ time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-public/update/csv?
 ##############################################################################
 # count the types and tokens in the final file, check cell counts
 ##############################################################################
-time python evaluate.py 4solr.$TENANT.public.csv /dev/null > counts.public.csv &
+time python3 evaluate.py 4solr.$TENANT.public.csv /dev/null > counts.public.csv &
 # get rid of intermediate files
 rm d?.csv m?.csv b?.csv media.csv metadata.csv &
 cut -f43 4solr.${TENANT}.public.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.public.blobs.csv

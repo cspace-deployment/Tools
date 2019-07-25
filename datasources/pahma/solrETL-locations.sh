@@ -50,7 +50,7 @@ rm m5.csv m3.sort.csv
 ##############################################################################
 # count the types and tokens in the final file
 ##############################################################################
-time python evaluate.py m4.csv 4solr.${TENANT}.locations.csv > counts.locations.csv
+time python3 evaluate.py m4.csv 4solr.${TENANT}.locations.csv > counts.locations.csv
 ##############################################################################
 # ok, now let's load this into solr...
 # clear out the existing data

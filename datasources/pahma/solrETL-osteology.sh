@@ -27,10 +27,10 @@ time perl -i -pe 's/[\r\n]/ /g;s/\@\@/\n/g' o1.csv
 ##############################################################################
 gunzip 4solr.${TENANT}.internal.csv.gz
 # compress the osteology data into a single variable
-python osteology_analyzer.py o1.csv o2.csv
+python3 osteology_analyzer.py o1.csv o2.csv
 sort o2.csv > o3.csv
 # add the internal data
-python join.py o3.csv 4solr.${TENANT}.internal.csv > o4.csv
+python3 join.py o3.csv 4solr.${TENANT}.internal.csv > o4.csv
 # csid_s is both files, let's keep only one in this file
 cut -f1,3- o4.csv > o5.csv
 grep -P "^id\t" o5.csv > header4Solr.csv
@@ -41,7 +41,7 @@ perl -i -pe 's/([\d\-]+) ([\d:]+)/\1T\2Z/' o7.csv
 ##############################################################################
 # count the types and tokens in the final file
 ##############################################################################
-time python evaluate.py o7.csv 4solr.${TENANT}.osteology.csv > counts.osteology.csv
+time python3 evaluate.py o7.csv 4solr.${TENANT}.osteology.csv > counts.osteology.csv
 # ok, now let's load this into solr...
 # clear out the existing data
 ##############################################################################

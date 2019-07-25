@@ -33,7 +33,7 @@ time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-media/update/csv?c
 ##############################################################################
 # count the types and tokens in the sql output
 ##############################################################################
-time python evaluate.py 4solr.${TENANT}.media.csv /dev/null > counts.media.csv
+time python3 evaluate.py 4solr.${TENANT}.media.csv /dev/null > counts.media.csv
 # get rid of intermediate files
 rm newmedia.csv
 # count blobs

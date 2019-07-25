@@ -33,7 +33,7 @@ time perl -ne 'print unless /\(\d+ rows\)/' d2.csv > d3.csv
 ##############################################################################
 # count the number of columns in each row, solr wants them all to be the same
 ##############################################################################
-time python evaluate.py d3.csv d4.csv > counts.public.csv
+time python3 evaluate.py d3.csv d4.csv > counts.public.csv
 ##############################################################################
 # run the media query
 ##############################################################################
@@ -58,7 +58,7 @@ rm d3.csv
 # make a unique sequence number for id
 ##############################################################################
 perl -i -pe '$i++;print $i . "\t"' metadata.csv
-python gbif/parseAndInsertGBIFparts.py metadata.csv metadata+parsednames.csv gbif/names.pickle 3
+python3 gbif/parseAndInsertGBIFparts.py metadata.csv metadata+parsednames.csv gbif/names.pickle 3
 ##############################################################################
 # we want to recover and use our "special" solr-friendly header, which got buried
 ##############################################################################
@@ -66,7 +66,7 @@ grep -P "^1\tid\t" metadata+parsednames.csv | head -1 > header4Solr.csv
 perl -i -pe 's/^1\tid/id\tobjcsid_s/' header4Solr.csv
 perl -i -pe 's/\r//;s/$/\tblob_ss/' header4Solr.csv
 grep -v -P "^1\tid\t" metadata+parsednames.csv > d7.csv
-python fixfruits.py d7.csv > public.metadata.csv
+python3 fixfruits.py d7.csv > public.metadata.csv
 ##############################################################################
 # eliminate restricted items from public dataset
 # nb: at this time we're not doing this, instead we are obfuscating their
@@ -87,7 +87,7 @@ cat header4Solr.csv d9.csv | perl -pe 's/␥/|/g' > d10.csv
 ##############################################################################
 # compute _i values for _dt values (to support BL date range searching)
 ##############################################################################
-time python computeTimeIntegers.py d10.csv 4solr.$TENANT.public.csv
+time python3 computeTimeIntegers.py d10.csv 4solr.$TENANT.public.csv
 # shorten this one long org name...
 perl -i -pe 's/International Union for Conservation of Nature and Natural Resources/IUCN/g' 4solr.$TENANT.public.csv
 wc -l *.csv
@@ -101,7 +101,7 @@ time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-public/update/csv?
 ##############################################################################
 # while that's running, clean up, generate some stats
 ##############################################################################
-time python evaluate.py 4solr.$TENANT.public.csv /dev/null > counts.public.csv &
+time python3 evaluate.py 4solr.$TENANT.public.csv /dev/null > counts.public.csv &
 # get rid of intermediate files
 # count blobs
 cut -f67 4solr.${TENANT}.public.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.public.blobs.csv

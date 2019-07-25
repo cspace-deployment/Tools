@@ -42,7 +42,7 @@ wc -l *.csv
 ##############################################################################
 # count the types and tokens in the final file
 ##############################################################################
-time python evaluate.py 4solr.$TENANT.public.csv /dev/null > counts.public.csv &
+time python3 evaluate.py 4solr.$TENANT.public.csv /dev/null > counts.public.csv &
 # clear out the existing data
 curl -S -s "http://localhost:8983/solr/${TENANT}-public/update" --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
 curl -S -s "http://localhost:8983/solr/${TENANT}-public/update" --data '<commit/>' -H 'Content-type:text/xml; charset=utf-8'
