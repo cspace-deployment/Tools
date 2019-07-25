@@ -13,28 +13,17 @@
 #
 
 import sys, csv, collections
-# for python 2.6 :-(
-from Counter import Counter
-
-
-from unicode_hack import UnicodeReader, UnicodeWriter
+from collections import Counter
 
 delim = "\t"
 
 types = {}
 errors = 0
 
-# keep these lines around for when we start to use python3
-# with open(sys.argv[2], 'w', encoding='utf-8') as f2:
-#    writer = csv.writer(f2, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
-#    with open(sys.argv[1], 'r', encoding='utf-8') as f1:
-#        reader = csv.reader(f1, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
-
-
 with open(sys.argv[2], 'w') as f2:
-    writer = UnicodeWriter(f2, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
-    with open(sys.argv[1], 'r') as f1:
-        reader = UnicodeReader(f1, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+   writer = csv.writer(f2, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+   with open(sys.argv[1], 'r') as f1:
+        reader = csv.reader(f1, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
         for lineno, row in enumerate(reader):
             if lineno == 0:
                 header = row
@@ -44,7 +33,7 @@ with open(sys.argv[2], 'w') as f2:
                 column_count = len(header)
             else:
                 if len(row) != column_count:
-                    print "%s%s%s" % ('error', delim, delim.join(row).encode('utf-8'))
+                    print("%s%s%s" % ('error', delim, delim.join(row).encode('utf-8')))
                     errors += 1
                     continue
                 for i, cell in enumerate(row):
@@ -54,9 +43,12 @@ with open(sys.argv[2], 'w') as f2:
 
 if errors > 0:
     print
-    print "%s errors seen (i.e. data row and header row w different counts.)" % errors
+    print("%s errors seen (i.e. data row and header row w different counts.)" % errors)
     print
 
-print "%s\t%s\t%s" % ('column', 'types', 'tokens')
-for key in header:
-    print "%s\t%s\t%s" % (key, len(types[key]), sum(types[key].values()))
+print("%s\t%s\t%s" % ('column', 'types', 'tokens'))
+try:
+    for key in header:
+        print("%s\t%s\t%s" % (key, len(types[key]), sum(types[key].values())))
+except:
+    print('evaluation incomplete: something went wrong -- empty file? not csv?')
