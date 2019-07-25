@@ -37,11 +37,6 @@ head -1 p5.csv | perl -pe 's/\r//;s/\t/_s\t/g;s/_s//;s/$/_s/;' > header4Solr.csv
 tail -n +2 p5.csv > p6.csv
 cat header4Solr.csv p6.csv > 4solr.$TENANT.propagations.csv
 ##############################################################################
-# here are the schema changes needed: copy all the _s and _ss to _txt, and vv.
-##############################################################################
-rm schemaFragment.xml
-perl -pe 's/\t/\n/g' header4Solr.csv| perl -ne 'chomp; next unless /_s/; s/_s$//; print "    <copyField source=\"" .$_."_s\" dest=\"".$_."_txt\"/>\n"' >> schemaFragment.xml
-##############################################################################
 # here are the solr csv update parameters needed for multivalued fields
 ##############################################################################
 perl -pe 's/\t/\n/g' header4Solr.csv| perl -ne 'chomp; next unless /_ss/; next if /blob/; print "f.$_.split=true&f.$_.separator=%7C&"' > uploadparms.txt
