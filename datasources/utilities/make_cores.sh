@@ -23,22 +23,27 @@ then
 fi
 
 SOLRDIR="solr8/server/solr"
-TOOLS="$1/datasources/ucb"
+TOOLS="$1/datasources/ucb/multicore"
 
 for t in bampfa botgarden ucjeps pahma cinefiles
 do
-  for type in public internal media
+  for type in public internal media propagations osteology
     do
-      echo "${t}.${type}"
-      mkdir -p ${t}/${type}/conf
-      touch ${t}/${type}/conf/stopwords.txt
-      touch ${t}/${type}/conf/protwords.txt
-      touch ${t}/${type}/conf/synonyms.txt
-      cp ${TOOL}/${t}.stopwords.txt ${t}/${type}/conf/stopwords.txt
-      cp ${TOOL}/${t}.synonyms.txt ${t}/${type}/conf/stopwords.txt
-      cp ${TOOL}/${t}.${type}.managed-schema ${t}/${type}/conf/managed-schema
-      cp ${TOOL}/${t}.${type}.solrconfig.xml ${t}/${type}/conf/solrconfig.xml
-      echo "name=$t-$type" > ${t}/${type}/core.properties
+      if [ -f ${TOOLS}/${t}.${type}.managed-schema ]
+      then
+        echo "${t}.${type}"
+        mkdir -p ${t}/${type}/conf
+        touch ${t}/${type}/conf/stopwords.txt
+        touch ${t}/${type}/conf/protwords.txt
+        touch ${t}/${type}/conf/synonyms.txt
+        cp ${TOOLS}/${t}.stopwords.txt ${t}/${type}/conf/stopwords.txt
+        cp ${TOOLS}/${t}.synonyms.txt ${t}/${type}/conf/stopwords.txt
+        cp ${TOOLS}/${t}.${type}.managed-schema ${t}/${type}/conf/managed-schema
+        cp ${TOOLS}/${t}.${type}.solrconfig.xml ${t}/${type}/conf/solrconfig.xml
+        echo "name=$t-$type" > ${t}/${type}/core.properties
+      else
+        echo "${t}.${type}: no schema found"
+      fi
     done
 done
 

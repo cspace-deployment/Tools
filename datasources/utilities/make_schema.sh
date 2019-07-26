@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # mostly untested!
-set -e
+#set -e
+set -x
 if [ $# -lt 1 ];
 then
-  echo 1>&2 "Make solr7 managed-schema from solr4 schema.xml, based on given managed-schema-template"
+  echo 1>&2 "Make solr8 managed-schema from solr4 schema.xml, based on given managed-schema-template"
   echo 1>&2 ""
   echo 1>&2 "call with one argument, the path to the Tool repo:"
   echo 1>&2 "$0 fullpathtotoolsdir"
@@ -14,6 +15,23 @@ then
   echo 1>&2 "(makes new files in the repo...)"
   echo 1>&2 ""
 fi
+
+function makeaschema()
+{
+    if [ -f datasources/ucb/multicore/${t}.${type}.schema.xml ]
+    then
+      echo "${t}.${type}"
+      cp datasources/ucb/multicore/solrconfig.v8.xml datasources/ucb/multicore/${t}.${type}.solrconfig.xml
+      cp datasources/ucb/multicore/managed-schema-template temp.xml
+      grep '<copyField' datasources/ucb/multicore/${t}.${type}.schema.xml | grep -v '<\!--' | grep -v 'dest="text"/>' > temp.txt
+      wc -l temp.txt
+      #perl -i -pe 's/^ //' temp.txt
+      perl -pe 's/COPYFIELDS/`cat temp.txt`/ge' -i temp.xml
+      perl -i -pe "s/\"TENANT\"/\"${t}-${type}\"/" temp.xml
+      xmllint --format temp.xml > datasources/ucb/multicore/${t}.${type}.managed-schema
+      rm temp.txt temp.xml
+    fi
+}
 
 TOOLS=$1
 if [ ! -d $TOOLS ];
@@ -26,12 +44,19 @@ for t in bampfa botgarden ucjeps pahma cinefiles
 do
   for type in public internal media
     do
-      cp datasources/ucb/multicore/managed-schema-template temp.xml
-      grep '<copyField' datasources/ucb/multicore/${t}.${type}.schema.xml | grep -v '<\!--' | grep -v 'dest="text"/>' > temp.txt
-      perl -i -pe 's/^ //' temp.txt
-      perl -pe 's/COPYFIELDS/`cat temp.txt`/ge' -i temp.xml
-      perl -i -pe "s/\"example\"/\"${t}-${type}\"/" temp.xml
-      xmllint --format temp.xml > datasources/ucb/multicore/${t}.${type}.managed-schema
+      makeaschema
     done
 done
-rm temp.txt temp.xml
+
+for t in pahma
+do
+  for type in osteology location
+    do
+      makeaschema
+    done
+done
+
+t='botgarden'
+type='propagations'
+makeaschema
+
