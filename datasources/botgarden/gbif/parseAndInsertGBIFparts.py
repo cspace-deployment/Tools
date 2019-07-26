@@ -96,7 +96,7 @@ def main():
 
     try:
         namepartsfile = sys.argv[2]
-        namepartsfh = csv.writer(open(namepartsfile, "w"), delimiter='\t')
+        namepartsfh = csv.writer(open(namepartsfile, "w", encoding="utf-8"), delimiter='\t', quoting=csv.QUOTE_NONE, quotechar=chr(255))
         #namepartsfh.write('\t'.join(nameparts) + '\n')
     except:
         print("could not open output file")
@@ -122,19 +122,17 @@ def main():
         sys.exit(1)
 
     try:
-        inputfile = open(sys.argv[1], "r")
+        inputfile = csv.reader(open(sys.argv[1], "r", encoding="utf-8"), delimiter='\t', quoting=csv.QUOTE_NONE, quotechar=chr(255))
     except:
         raise
         print("could not open input file %s" % sys.argv[1])
         sys.exit(1)
 
-    for line in inputfile:
+    for cells in inputfile:
         count.input += 1
-        inputrow = line.rstrip('\n')
-        cells = inputrow.split('\t')
         name = cells[namecolumn]
         # handle cultivars without 'cv.'...
-        name = check4cultivars(name)
+        # name = check4cultivars(name)
         if name in parsednames:
             count.source += 1
             name2use = parsednames[name]
@@ -162,7 +160,6 @@ def main():
 
         if count.input == 1:
             row = [h + '_s' for h in nameparts]
-        cells = [x.encode('utf-8') for x in cells]
         cells = cells[:namecolumn] + row + cells[namecolumn:]
         namepartsfh.writerow(cells)
 
