@@ -1,6 +1,5 @@
 import sys, csv
 from collections import defaultdict
-from unicode_hack import UnicodeReader, UnicodeWriter
 
 count = defaultdict(int)
 delim = '\t'
@@ -39,16 +38,16 @@ objectlegacydeptcol = 2
 
 
 def check(string_to_check, pattern):
-    if unicode(pattern).lower() in unicode(string_to_check).lower():
+    if str(pattern).lower() in str(string_to_check).lower():
         return True
     else:
         return False
 
 
-writer = UnicodeWriter(open(sys.argv[4], "wb"), delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+writer = csv.writer(open(sys.argv[4], "w"), delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
 
 with open(sys.argv[1], 'r') as MEDIA:
-    reader = UnicodeReader(MEDIA, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+    reader = csv.reader(MEDIA, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
     for row in reader:
 
         count['media'] += 1
@@ -58,8 +57,8 @@ with open(sys.argv[1], 'r') as MEDIA:
             continue
 
         if len(row) != 19:
-            print 'expected 19 columns:'
-            print row
+            print('expected 19 columns:')
+            print(row)
             count['skipped media (invalid row)'] += 1
             continue
         (objectcsid, objectnumber, mediacsid, description, name, creatorrefname, creator, blobcsid, copyrightstatement,
@@ -157,13 +156,13 @@ with open(sys.argv[1], 'r') as MEDIA:
 # die "couldn't open metadata file sys.arg[1]"
 
 with open(sys.argv[2], 'r') as METADATA:
-    reader = UnicodeReader(METADATA, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+    reader = csv.reader(METADATA, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
     for line in reader:
         id = line[0]
         objectcsid = line[1]
         rest = line[2:]
         if objectcsid == '':
-            print "objectcsid is blank: "
+            print("objectcsid is blank: ")
             continue
         # handle header line
         if id == 'id':
@@ -226,4 +225,4 @@ with open(sys.argv[2], 'r') as METADATA:
         writer.writerow(mediablobs)
 
 for s in sorted(count.keys()):
-    print "%s: %s" % (s, count[s])
+    print("%s: %s" % (s, count[s]))

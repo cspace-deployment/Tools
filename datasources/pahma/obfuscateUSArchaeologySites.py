@@ -2,7 +2,6 @@ import re
 import hashlib
 import math
 import sys, csv
-from unicode_hack import UnicodeReader, UnicodeWriter
 
 hashkey_column = 38
 fieldCollectionTree_column = 41
@@ -15,10 +14,10 @@ def pol2cart(rho, phi):
     y = rho * math.sin(phi)
     return (x, y)
 
-with open(sys.argv[2], 'wb') as out:
-    writer = UnicodeWriter(out, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+with open(sys.argv[2], 'w') as out:
+    writer = csv.writer(out, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
     with open(sys.argv[1], 'r') as original:
-        reader = UnicodeReader(original, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+        reader = csv.reader(original, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
         for row in reader:
             try:
                 # *all* archeology sites worldwide are obscured
@@ -53,8 +52,8 @@ with open(sys.argv[2], 'wb') as out:
                     longitude = float(longitude) + latlongoffset[1]
                     row[latlong_column] = "%s,%s" % (latitude, longitude)
             except:
-                print 'problem!!!'
-                print row
+                print('problem!!!')
+                print(row)
                 raise
                 sys.exit()
 

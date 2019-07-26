@@ -33,9 +33,9 @@ def process_header(line1):
     return outputheader
 
 
-with open(sys.argv[2], "wb") as out:
+with open(sys.argv[2], "w") as out:
     writer = csv.writer(out, delimiter="\t")
-    with open(sys.argv[1], "rb") as original:
+    with open(sys.argv[1], "r") as original:
         reader = csv.reader(original, delimiter="\t")
         for i, row in enumerate(reader):
             bunch = []
@@ -53,8 +53,8 @@ with open(sys.argv[2], "wb") as out:
                             bunch.append(header[j][:-2] + '=' + cell)
             except:
                 raise
-                print 'problem!!!'
-                print row
+                print('problem!!!')
+                print(row)
                 sys.exit()
             outputrow.append(','.join(bunch))
             writer.writerow(outputrow)
