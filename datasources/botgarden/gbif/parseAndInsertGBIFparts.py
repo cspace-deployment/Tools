@@ -151,10 +151,7 @@ def main():
 
         for part in nameparts:
             if part in name2use:
-                try:
-                    row.append(name2use[part].encode('utf-8'))
-                except:
-                    row.append(str(name2use[part]))
+                row.append(str(name2use[part]))
             else:
                 row.append('')
 
