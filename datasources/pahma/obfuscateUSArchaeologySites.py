@@ -36,11 +36,11 @@ with open(sys.argv[2], 'w') as out:
                     modulus = 0.2
 
                     # get md5 hash of secret value, convert to int, normalize this to range of -.05 to .05 degrees
-                    lat_offset = int(hashlib.md5(location).hexdigest(), 16)
+                    lat_offset = int(hashlib.md5(location.encode('utf-8').hexdigest(), 16)
                     lat_offset = (lat_offset + 0.0) / int("9" * len(str(lat_offset)))  # Clamp value to 0 to 1
                     lat_offset = (lat_offset % modulus) / modulus
 
-                    long_offset = int(hashlib.md5(location[::-1]).hexdigest(), 16)
+                    long_offset = int(hashlib.md5(location[::-1].encode('utf-8').hexdigest(), 16)
                     long_offset = (long_offset + 0.0) / int("9" * len(str(long_offset)))  # Clamp value to 0 to 1
                     long_offset = (long_offset % modulus) / modulus
 
