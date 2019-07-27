@@ -44,7 +44,7 @@ def check(string_to_check, pattern):
         return False
 
 
-writer = csv.writer(open(sys.argv[4], "w"), delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+writer = csv.writer(open(sys.argv[4], "w"), delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255), escapechar='\\')
 
 with open(sys.argv[1], 'r') as MEDIA:
     reader = csv.reader(MEDIA, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
