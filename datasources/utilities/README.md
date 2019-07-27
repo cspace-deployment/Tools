@@ -1,20 +1,22 @@
-## Solr4 helpers for UCB CSpace webapps
+## Solr8 helpers for UCB CSpace webapps
 
 Tools (mainly shell scripts) to:
 
-* deploy solr4 on Unix-like systems (Mac, Linux, perhaps even Unix).
-* load the existing UCB solr datastores into the solr4 deployment.
+* deploy solr8 on Unix-like systems (Mac, Linux, perhaps even Unix).
+* load the existing UCB solr datastores into the solr8 deployment.
 * start and stop the solr service.
 
 Currently there are 7 tools, some mature, but mostly unripe, raw, and needy:
 
-* configureMultiCoreSolr.sh -- installs and configures the "standard" multicore configuration
 * scp4solr.sh -- attempts to scp (copy via ssh) the available nightly solr extracts
-* curl4solr.sh -- attempts to cURL the available nightly solr public extracts from the Production server
-* startSolr.sh -- starts Solr4 from the command line and puts it in the background. Useful only for development.
-* allcurls.sh -- clears out and refreshes all UCB solr cores (provide you have the input files!)
+* curl4solr.sh --  attempts to cURL the available nightly solr public extracts from the Production server
+* make_curls.sh -- script to extract the latest cURL commands to do the POSTing to Solr. creates allcurls.sh
+* startSolr.sh -- starts Solr8 from the command line and puts it in the background. Useful only for development.
+* allcurls.sh -- (EXAMPLE ONLY!) clears out and refreshes all UCB solr cores (provide you have the input files!)
 * checkstatus.sh -- *on UCB managed servers only* this script checks the ETL logs and counts records in all the solr cores
-* countSolr4.sh -- if your Solr4 server is running, this script will count the records in the UCB cores
+* countSolr8.sh -- if your Solr8 server is running, this script will count the records in the UCB cores
+
+(* configureMultiCoreSolr.sh.defunct -- (DEFUNCT!) installs and configures the "standard" multicore configuration)
 
 #### Suggestions for "local installs"
 
@@ -22,12 +24,12 @@ e.g. on your Macbook or Ubuntu labtop, for development. Sorry, no help for Windo
 
 The essence:
 
-* Install Solr4
-* Configure for UCB solr datastores
-* Start the Solr4 server
+* Install Solr8
+* Configure for UCB solr datastores using make_schema.sh and make_cores.sh
+* Start the Solr8 server
 * Obtain the latest data extracts from UCB servers
 * Unzip and load the extracts
-* Verify Solr4 server works
+* Verify Solr8 server works
 
 ```bash
 #
@@ -41,42 +43,63 @@ The essence:
 #
 # (you'll need to clone the repo with all the tools in it...)
 #
-# let's assume that for now you'll put the solr4 data in your home directory.
+# let's assume that for now you'll put the solr8 data in your home directory.
 cd ~
 git clone https://github.com/cspace-deployment/Tools
+
+# 2. Get solr8
+wget ....
+gunzip ...
+mv solr8-.... solr8
+
+# try it out
+cd ~/solr8
+bin/solr start
+
+# 3. You should now be able to see the Solr8 admin console in your browser:
 #
-# 2. configure the Solr multicore deployment using configureMultiCoreSolr.sh
+#    http://localhost:8983/solr/
+
+
+# ok it works. stop it for now.
+
+bin/solr stop
+
 #
-# NB: takes 3 arguments! Assumes you have cloned the Tools repo...use the full path please
+# 4. create the schema
+#
+# NB: Assumes you have cloned the Tools repo...use the full path please
 #
 # run the following script which unpacks solr, makes the UCB cores in multicore, copies the customized files needed
 #
 cd ~/Tools/datasources/utilities
-./configureMultiCoreSolr.sh ~/Tools ~/solr4 4.10.4
+./make_schema ~/Tools
 #
 #
-# 3. Install the startup script and start solr (NB: this script puts the process into the background)
+# 5. make the cores and deploy the schema where they need to go
+# 
+cd ~/solr8/server/solr
+cp ~/Tools/datasources/utilities/make_cores.sh .
+./make_cores.sh
 #
-cd ~/solr4/ucb
-cp ~/Tools/datasources/utilities/startSolr.sh .
-./startSolr.sh
-#
-# 4. You should now be able to see the Solr4 admin console in your browser:
+# 6. Restart solr and check to see your cores are there.
+cd ~/solr8
+bin/solr start
 #
 #    http://localhost:8983/solr/
 #
 #    You should have a bunch of empty solr cores named things like "bampfa-public", "pahma-internal", etc.
 #
-#    You can also check the contents of the solr server using the countSolr4.sh script:
+#    You can also check the contents of the solr server using the countSolr8.sh script:
 #
-~/Tools/datasources/utilities/countSolr4.sh
+~/Tools/datasources/utilities/countSolr8.sh
 #
-# 5. download all the current nightly dumps from UCB servers.
+# 6. download all the current nightly dumps from UCB servers.
 #
 # first, make a directory to keep things neat and tidy:
 cd ~
-mkdir solrdumps
-cd solrdumps
+mkdir 4solr
+cd 4solr
 #
 # There are several ways to get the files:
 #
@@ -104,7 +127,7 @@ cd solrdumps
 #       gunzip -f 4solr*.gz
 # * Be patient: it may take a while -- 10-20 minutes -- to download all the files. They're a bit big.
 #
-# 6. execute the script to load all the .csv dump files (take 15 mins or so...some biggish datasources!)
+# 7. execute the script to load all the .csv dump files (take 15 mins or so...some biggish datasources!)
 #
 #    this script cleans out each solr core and then loads the dump file.
 #    all the work is done via HTTP
@@ -113,30 +136,32 @@ cd solrdumps
 # make sure you get the right ones -- you may need to recreate the allcurls.sh
 # script on Production using the make_curls.sh script...
 #
-~/Tools/datasources/utilities/allcurls.sh
+nohup ~/Tools/datasources/utilities/allcurls.sh
+
+# (takes a while, well over an hour. ergo the nohup...)
 #
 #    as noted above, you can check the contents of your Solr cores in the admin console or via
 #    a script, as described in 4. above.
 #
 # 7. Clean up, if you wish
 #
-rm -rf ~/solrdump
+rm -rf ~/4solr
 #
-# You should now have some "live data" in Solr4! Enjoy!
+# You should now have some "live data" in Solr8! Enjoy!
 #
 ```
 
 #### Installation on UCB Managed VMs (RHEL6)
 
-To install solr4 on Manage VMs at UCB, from scratch, or to completely update the solr datastores,the following seems to work.
-Not that this procedure is a complete ground up rebuild of the Solr4 service, and during the time
+To install solr8 on Manage VMs at UCB, from scratch, or to completely update the solr datastores,the following seems to work.
+Not that this procedure is a complete ground up rebuild of the Solr8 service, and during the time
 this is being executed Solr will be down.
 
 ```bash
 # ssh to a server
 ssh cspace-prod.cspace.berkeley.edu
-# stop solr4 if it is running...assumes solr4 is already installed as a service
-sudo service solr4 stop
+# stop solr8 if it is running...assumes solr8 is already installed as a service
+sudo service solr8 stop
 # we install solr and its datastore here
 #
 sudo su - app_solr
@@ -148,30 +173,32 @@ cd ~
 # otherwise, clone it.
 cd ~
 git clone https://github.com/cspace-deployment/Tools
-# get rid of any existing solr4 install here
-sudo rm -rf ~/solr4/
-# config the ucb solr cores and start solr
-Tools/datasources/utilities/configureMultiCoreSolr.sh ~/Tools ~/solr4 4.10.4
-# if the mirror is not available, you might have to get the tar file yourself
-#export SOLRVERSION=4.10.4
-#curl -o /tmp/solr-$SOLRVERSION.tgz http://archive.apache.org/dist/lucene/solr/$SOLRVERSION/solr-$SOLRVERSION.tgz
-#Tools/datasources/utilities/configureMultiCoreSolr.sh ~/Tools ~/solr4 4.10.4
-# increase ram for solr to 786m
-vi solr4/ucb/startSolr.sh
-# start the server
-/home/app_solr/solr4/ucb/startSolr.sh
 
+# get rid of any existing solr8 install here
+sudo rm -rf ~/solr8/
+
+# config the ucb solr cores and start solr
+# follow the steps above for make_core.sh and make_schema.sh
 # set up the solr etl
 mkdir solrdatasources
 Tools/datasources/utilities/redeploy-etl.sh
+
 # hmmm... the script expects to save an existing dir, remove it if we don't care.
 rm -rf solrdatasources.180409/
 cd solrdatasources/
-# make the prod scripts into dev scripts
-# ymmv! the following used to work, but port number and hostnames are prone to change
-perl -i -pe 's/prod\-42/dev-42/g;s/port=53/port=51/' */*.sh
-perl -i -pe 's/port=5113/port=5114/' */*.sh
-cd
+#
+# OPTIONAL STEPS:
+#
+# To make the prod scripts into dev scripts:
+# ymmv! the following used to work (July 2019), but port number and hostnames are prone to change
+cd ~
+perl -i -pe 's/prod\-42.ist.berkeley.edu port=53/dev-42.ist.berkeley.edu port=51/' solrdatasources/*/*.sh
+perl -i -pe 's/prod\-42.ist.berkeley.edu port=53/dev-42.ist.berkeley.edu port=51/' solrdatasources/*/*.sh
+perl -i -pe 's/CONTACT=.*/CONTACT="jblowe\@berkeley.edu"/' solrdatasources/*/*.sh
+perl -i -pe 's/=5113/=5114/' solrdatasources/*/*.sh
+perl -i -pe 's/=5107/=5117/' solrdatasources/*/*.sh
+perl -i -pe 's/=5110/=5119/' solrdatasources/*/*.sh
+
 # setup pgpass, if it is not already set up.
 cat > .pgpass
 vi .pgpass
@@ -185,17 +212,9 @@ wait
 Tools/datasources/utilities/checkstatus.sh -v
 
 # now load the solr cores; couple ways to do this:
-# 1. Provided you have access to the Postgress server, you can run the refresh job (takes a couple hours):
+# Provided you have access to the Postgress server, you can run the refresh job (takes a couple hours):
 nohup one_job.sh >> /home/app_solr/refresh.log &
 #
-# 2. Otherwise, you can scp them from some other server that has them:
-mkdir 4solr
-cd 4solr/
-# fetch and decompress the public extracts from prod
-~/Tools/datasources/utilities/curl4solr.sh
-gunzip -f *.gz
-# POST the files to the now-running solr server (takes perhaps 30 mins)
-nohup ~/Tools/datasources/utilities/allcurls.sh
 ```
 
 Caveats:
@@ -323,22 +342,22 @@ diff -r /home/app_solr/Tools/datasources/ucjeps/solrETL-public.sh solrdatasource
 ```
 
 
-#### Installing solr4 as a service on UCB VMs
+#### Installing solr8 as a service on UCB VMs
 
 ```bash
-# install the solr4.service script in /etc/init.d
-sudo cp solr4.service /etc/init.d/solr4
+# install the solr8.service script in /etc/init.d
+sudo cp solr8.service /etc/init.d/solr8
 # check that the script works
-sudo service solr4 status
+sudo service solr8 status
 # if solr is installed as described above, the following should work
-sudo service solr4 start
+sudo service solr8 start
 # you can also check if the service is running this way:
 ps aux | grep java
 # the logs are in the following directory:
-ls -ltr /usr/local/share/solr4/ucb/logs/
+ls -ltr /usr/local/share/solr8/ucb/logs/
 # e.g.
-less  /usr/local/share/solr4/ucb/logs/solr.log
-less  /usr/local/share/solr4/ucb/logs/2015_03_21-085800651.start.log
+less  /usr/local/share/solr8/ucb/logs/solr.log
+less  /usr/local/share/solr8/ucb/logs/2015_03_21-085800651.start.log
 ```
 
 
