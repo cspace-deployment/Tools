@@ -21,18 +21,22 @@ YYMMDD=`date +%y%m%d`
 BACKUPDIR=${SOLRETLDIR}.${YYMMDD}
 if [ -d $BACKUPDIR ];
 then
-   echo "Backup ETL directory $BACKUPDIR already exists. Please specify a different directory name"
+   echo "Backup ETL directory $BACKUPDIR already exists. Please move or remove it and try again"
    exit 1
 fi
 mv ${SOLRETLDIR} ${BACKUPDIR}
 mkdir ${SOLRETLDIR}
+
 # 3. deploy fresh code from github
 cd ${TOOLS}
 git pull -v
-cp -r datasources/* ${SOLRETLDIR}
-cp datasources/utilities/one_job.sh ~
+cp datasources/utilities/o*.sh ~
 cp datasources/utilities/optimize.sh ~
 cp datasources/utilities/checkstatus.sh ~
+cp datasources/utilities/redeploy-etl.sh ~
+
+rsync -av Tools/datasources/ solrdatasources/
+
 # 4. try to put botgarden's pickle file back; it takes hours to recreate from scratch.
 cp ${BACKUPDIR}/botgarden/gbif/names.pickle ${SOLRETLDIR}/botgarden/gbif
 #
