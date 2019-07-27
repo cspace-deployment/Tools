@@ -17,7 +17,6 @@ then
   echo 1>&2 "e.g."
   echo 1>&2 "$0  ~/Tools"
   echo 1>&2 ""
-  echo 1>&2 "NB: does NOT install 'custom' cores such as UCBG propagations and PAHMA osteology"
   echo 1>&2 ""
   exit 2
 fi
@@ -27,7 +26,7 @@ TOOLS="$1/datasources/ucb/multicore"
 
 for t in bampfa botgarden ucjeps pahma cinefiles
 do
-  for type in public internal media propagations osteology
+  for type in public internal media propagations osteology locations
     do
       if [ -f ${TOOLS}/${t}.${type}.managed-schema ]
       then
