@@ -37,8 +37,8 @@ def compare_years(years, int_year_names, musno):
     for year in int_year_names:
         candidate_replacement_year = years[year.replace('begin', 'end')]
         if years[year] < '1695' and candidate_replacement_year != '' and candidate_replacement_year <= current_year:
-            print('replaced %s (%s) with %s (%s) for %s' % (
-            years[year], year, candidate_replacement_year, year.replace('begin', 'end'), musno))
+            # print('replaced %s (%s) with %s (%s) for %s' % (
+            # years[year], year, candidate_replacement_year, year.replace('begin', 'end'), musno))
             years[year] = candidate_replacement_year
         # make sure it's after 1695 no matter what happened above
         if years[year] < '1695':
