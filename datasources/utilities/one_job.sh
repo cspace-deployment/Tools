@@ -5,7 +5,7 @@
 #
 ##################################################################################
 #
-# run all solr ETL (and other webapp and API monitoring)
+# run all solr ETL
 #
 # currently runs under app user app_solr on cspace-prod and (optionally) cspace-dev
 #
@@ -22,26 +22,17 @@
 # not in parallel: they may overwrite files or otherwise conflict. there are no
 # such conflicts between tenants, except for system resources such as cpu and
 # memory.
+#
+# therefore, this version of one-job.sh runs the refresh for all 5 tenants in
+# parallel, and waits for them all to finish.
 ##################################################################################
-echo 'starting solr refreshes' `date`
-/home/app_solr/solrdatasources/bampfa/solrETL-public.sh           bampfa    >> /home/app_solr/logs/bampfa.solr_extract_public.log  2>&1
-/home/app_solr/solrdatasources/bampfa/solrETL-internal.sh         bampfa    >> /home/app_solr/logs/bampfa.solr_extract_internal.log  2>&1
-/home/app_solr/solrdatasources/bampfa/bampfa_collectionitems_vw.sh bampfa   >> /home/app_solr/logs/bampfa.solr_extract_BAM.log  2>&1
-/home/app_solr/solrdatasources/bampfa/piction_extract.sh          bampfa    >> /home/app_solr/logs/bampfa.solr_extract_Piction.log  2>&1
-
-/home/app_solr/solrdatasources/botgarden/solrETL-public.sh        botgarden >> /home/app_solr/logs/botgarden.solr_extract_public.log  2>&1
-/home/app_solr/solrdatasources/botgarden/solrETL-internal.sh      botgarden >> /home/app_solr/logs/botgarden.solr_extract_internal.log  2>&1
-/home/app_solr/solrdatasources/botgarden/solrETL-propagations.sh  botgarden >> /home/app_solr/logs/botgarden.solr_extract_propagations.log  2>&1
-
-/home/app_solr/solrdatasources/cinefiles/solrETL-public.sh        cinefiles >> /home/app_solr/logs/cinefiles.solr_extract_public.log  2>&1
-
-/home/app_solr/solrdatasources/pahma/solrETL-public.sh            pahma     >> /home/app_solr/logs/pahma.solr_extract_public.log  2>&1
-/home/app_solr/solrdatasources/pahma/solrETL-internal.sh          pahma     >> /home/app_solr/logs/pahma.solr_extract_internal.log  2>&1
-/home/app_solr/solrdatasources/pahma/solrETL-locations.sh         pahma     >> /home/app_solr/logs/pahma.solr_extract_locations.log  2>&1
-/home/app_solr/solrdatasources/pahma/solrETL-osteology.sh         pahma     >> /home/app_solr/logs/pahma.solr_extract_osteology.log  2>&1
-
-/home/app_solr/solrdatasources/ucjeps/solrETL-media.sh            ucjeps    >> /home/app_solr/logs/ucjeps.solr_extract_media.log  2>&1
-/home/app_solr/solrdatasources/ucjeps/solrETL-public.sh           ucjeps    >> /home/app_solr/logs/ucjeps.solr_extract_public.log  2>&1
+echo 'starting solr refresh' `date` >> refresh.log
+./oj.bampfa.sh &
+./oj.botgarden.sh &
+./oj.cinefiles.sh &
+./oj.pahma.sh &
+./oj.ucjeps.sh &
+wait
 ##################################################################################
 # optimize all solrcores after refresh
 ##################################################################################
@@ -49,6 +40,7 @@ echo 'starting solr refreshes' `date`
 ##################################################################################
 # monitor solr datastores
 ##################################################################################
-if [[ `/home/app_solr/checkstatus.sh` ]] ; then /home/app_solr/checkstatus.sh -v | mail -s "PROBLEM with solr refresh nightly refresh" -- cspace-support@lists.berkeley.edu ; fi
-/home/app_solr/checkstatus.sh -v
-echo 'done with solr refreshes' `date`
+if [[ `/home/app_solr/checkstatus.sh` ]] ; then /home/app_solr/checkstatus.sh -v | mail -s "PROBLEM with solr refresh nightly refresh" -- jblowe@berkeley.edu ; fi
+/home/app_solr/checkstatus.sh -v >> refresh.log
+echo 'done with solr refresh' `date` >> refresh.log
+
