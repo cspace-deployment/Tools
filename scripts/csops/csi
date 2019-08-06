@@ -112,10 +112,17 @@ for repo in ${REPOSITORIES[@]}; do
 	fi
 done
 
-rebuild_services_needed=false
-rebuild_application_needed=false
-deploy_ui_needed=false
-deploy_services_artifacts_needed=false
+if [[ $2 == '-f' ]]; then
+	rebuild_services_needed=true
+	rebuild_application_needed=true
+	deploy_ui_needed=true
+	deploy_services_artifacts_needed=true
+else
+	rebuild_services_needed=false
+	rebuild_application_needed=false
+	deploy_ui_needed=false
+	deploy_services_artifacts_needed=false
+fi
 
 if [[ ${commit_changed[application]} == true ]]; then
 	rebuild_application_needed=true
