@@ -70,8 +70,9 @@ array_to_string(array
     left outer join groups_common gc ON (h16.id = gc.id)
     join misc mm ON (gc.id=mm.id AND mm.lifecyclestate <> 'deleted')
     where h2int.name = h1.name), '|', '') as grouptitle_ss,
-tig.hybridflag as hybridflag_s,
-tc.taxonisnamedhybrid as taxonisnamedhybrid_s
+case when (tig.hybridflag = 'true') then 'yes' else 'no' end as hybridflag_s,
+case when (tc.taxonisnamedhybrid = 'true') then 'yes' else 'no' end as taxonisnamedhybrid_s
+
 
 
 from collectionobjects_common co
