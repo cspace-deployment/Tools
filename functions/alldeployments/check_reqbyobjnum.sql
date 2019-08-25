@@ -1,6 +1,6 @@
--- DROP FUNCTION check_uoc_reqbyobjnum (VARCHAR, VARCHAR, VARCHAR)
+-- DROP FUNCTION check_reqbyobjnum (VARCHAR, VARCHAR, VARCHAR)
 
-CREATE OR REPLACE FUNCTION check_uoc_reqbyobjnum (VARCHAR, VARCHAR default null, VARCHAR default null)
+CREATE OR REPLACE FUNCTION check_reqbyobjnum (VARCHAR, VARCHAR default null, VARCHAR default null)
 RETURNS BOOLEAN
 AS
 $$
@@ -27,7 +27,7 @@ if $2 is not null and $3 is not null then
         );
 end if;
 
-if $2 is not null and $3 is not null  then
+if $2 is not null and $3 is null then
         RETURN EXISTS (
                 select 1
                 from uoc_common uc
@@ -57,5 +57,5 @@ $$
 LANGUAGE 'plpgsql'
 IMMUTABLE;
 
-GRANT EXECUTE ON FUNCTION check_uoc_reqbyobjnum (varchar, varchar, varchar) TO PUBLIC;
+GRANT EXECUTE ON FUNCTION check_reqbyobjnum (varchar, varchar, varchar) TO PUBLIC;
 

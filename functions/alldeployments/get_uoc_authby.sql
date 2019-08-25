@@ -10,9 +10,9 @@ DECLARE authstr VARCHAR(4000);
 BEGIN
 
 select string_agg(
-        to_char(ag.authorizationdate, 'yyyy-mm-dd') || ': <b>' ||
-        getdispl(ag.authorizationstatus) || '</b>: ' ||
-        getdispl(ag.authorizedby), '<br>' order by ag.authorizationdate)
+        case when ag.authorizationdate is null then '' else to_char(ag.authorizationdate, 'yyyy-mm-dd') || ': ' end
+        || case when ag.authorizationstatus is null then '' else '<b>' || getdispl(ag.authorizationstatus) || '</b>: ' end
+        || getdispl(ag.authorizedby), '<br>' order by ag.authorizationdate)
 into authstr
 from uoc_common uc
 join hierarchy hag on (
@@ -20,8 +20,8 @@ join hierarchy hag on (
         and hag.name = 'uoc_common:authorizationGroupList')
 join authorizationgroup ag on (hag.id = ag.id)
 where uc.id = $1
-and ag.authorizedby like $2
-and ag.authorizationstatus like $3
+and coalesce(ag.authorizedby, '') like $2
+and coalesce(ag.authorizationstatus, '') like $3
 group by uc.id;
 
 RETURN authstr;

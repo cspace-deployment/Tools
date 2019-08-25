@@ -10,15 +10,16 @@ DECLARE reqstr VARCHAR(4000);
 BEGIN
 
 select string_agg(
-        getdispl(ug.usertype) || ': ' ||
-        getdispl(ug.user), '<br>' order by hug.pos)
+	case when ug.usertype is null then '' else getdispl(ug.usertype) || ': ' end ||
+	getdispl(ug.user), '<br>' order by hug.pos)
 into reqstr
 from uoc_common uc
 join hierarchy hug on (
-        uc.id = hug.parentid
-        and hug.name = 'uoc_common:userGroupList')
+	uc.id = hug.parentid
+	and hug.name = 'uoc_common:userGroupList')
 join usergroup ug on (hug.id = ug.id)
 where uc.id = $1
+and ug.user is not null
 group by uc.id;
 
 RETURN reqstr;
@@ -31,4 +32,5 @@ IMMUTABLE
 RETURNS NULL ON NULL INPUT;
 
 GRANT EXECUTE ON FUNCTION get_uoc_reqby (VARCHAR) TO PUBLIC;
+
 
