@@ -1,3 +1,5 @@
+require 'cucumber'
+
 Then(/^I check for "(.*?)"$/) do |arg1|
     expect(page).to have_css("img[src*='" + arg1 + "']")
 end
@@ -35,9 +37,10 @@ Then(/^I verify the search fields "(.*?)" in "(.*?)"$/) do |field, range|
     end
 end
 
-Transform /^(-?\d+)$/ do |number| # transforms string to int, source: https://github.com/cucumber/cucumber/wiki/Step-Argument-Transforms
-    number.to_i
-end
+# This is unrecognized and throwing an error
+# Transform /^(-?\d+)$/ do |number| # transforms string to int, source: https://github.com/cucumber/cucumber/wiki/Step-Argument-Transforms
+#     number.to_i
+# end
 
 Then(/^I verify the table headers "(.*?)"$/) do |items| 
     within('div#resultsPanel') do
