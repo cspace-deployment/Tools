@@ -16,7 +16,7 @@ def get_year(date_value):
 
 
 with open(sys.argv[2], 'w') as f2:
-    file_with_integer_times = csv.writer(f2, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
+    file_with_integer_times = csv.writer(f2, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255), escapechar='')
     with open(sys.argv[1], 'r') as f1:
         reader = csv.reader(f1, delimiter=delim, quoting=csv.QUOTE_NONE, quotechar=chr(255))
         try:
