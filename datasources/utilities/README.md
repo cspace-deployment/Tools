@@ -11,10 +11,10 @@ Currently there are 7 tools, some mature, but mostly unripe, raw, and needy:
 * scp4solr.sh -- attempts to scp (copy via ssh) the available nightly solr extracts
 * curl4solr.sh --  attempts to cURL the available nightly solr public extracts from the Production server
 * make_curls.sh -- script to extract the latest cURL commands to do the POSTing to Solr. creates allcurls.sh
-* startSolr.sh -- starts Solr8 from the command line and puts it in the background. Useful only for development.
 * allcurls.sh -- (EXAMPLE ONLY!) clears out and refreshes all UCB solr cores (provide you have the input files!)
 * checkstatus.sh -- *on UCB managed servers only* this script checks the ETL logs and counts records in all the solr cores
 * countSolr8.sh -- if your Solr8 server is running, this script will count the records in the UCB cores
+* tS.py -- a script to test your "solrpy" module and connectivity to Solr
 
 (* configureMultiCoreSolr.sh.defunct -- (DEFUNCT!) installs and configures the "standard" multicore configuration)
 
@@ -137,7 +137,6 @@ cd 4solr
 # script on Production using the make_curls.sh script...
 #
 nohup ~/Tools/datasources/utilities/allcurls.sh
-
 # (takes a while, well over an hour. ergo the nohup...)
 #
 #    as noted above, you can check the contents of your Solr cores in the admin console or via
@@ -216,6 +215,32 @@ Tools/datasources/utilities/checkstatus.sh -v
 nohup one_job.sh >> /home/app_solr/refresh.log &
 #
 ```
+
+#### Finding stuff in your Solr cores"
+
+Often it is useful to be able to check for stuff in one of the Solr cores.
+
+Locally, the "Solr admin panel" is a great tool. If solr is running, it should be available
+at:
+
+
+http://localhost:8983/solr/
+
+If you want to see if your Solr cores are available and you have the Python Solr module
+properly installed, you can use `tS.py`. Try:
+
+`
+python tS.py
+`
+
+in this very directory and debug from there.
+
+For example, if you would like to run check to see if a list of PAHMA museum numbers actually exist, you 
+could make a file of the museum numbers, one per line, and try:
+
+`
+python tS.py pahma-public http://localhost:8983 'objmusno_s:"%s"' < /tmp/objmusno_s.txt > objmusno_s.txt 
+`
 
 Caveats:
 
