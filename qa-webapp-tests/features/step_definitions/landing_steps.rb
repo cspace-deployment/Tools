@@ -4,7 +4,7 @@ Given(/^I am on the "(.*?)" homepage$/) do |institution|
 end
 
 Then(/^I will sign in$/) do
-    fill_in "Username", :with => env_config['login'] + "@" + $ginstitution + ".cspace.berkeley.edu"
+    fill_in "Username", :with => env_config['login'] + "@berkeley.edu"
     fill_in "Password", :with => env_config['password']
     find(:link_or_button, "Sign In").click
 end

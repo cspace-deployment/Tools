@@ -9,5 +9,9 @@ Then(/^I will see the correct report in pdf format$/) do
 end
 
 Then(/^I click "([^"]*)"$/) do |button|
-    find(:link_or_button, button).click
+    find(:xpath, "//div[@id='header']//a[@id='#{button}']").click
+end
+
+Then(/^I click the link with text "([^"]*)"$/) do |link_text|
+    find(:xpath, "//a[text()='#{link_text}']").click
 end
