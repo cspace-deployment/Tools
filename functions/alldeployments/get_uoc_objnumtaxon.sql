@@ -9,7 +9,9 @@ DECLARE objnumtaxstr VARCHAR(9000);
 
 BEGIN
 
-select string_agg(coc.objectnumber || ': ' || getdispl(tig.taxon), '; ' order by coc.objectnumber)
+select string_agg('<b>' || coc.objectnumber || '</b>' || 
+	case when getdispl(tig.taxon) is null then '' else ': ' || getdispl(tig.taxon) end,
+	'<br>' order by coc.objectnumber)
 into objnumtaxstr
 from uoc_common uc
 join hierarchy huc on (uc.id = huc.id)
