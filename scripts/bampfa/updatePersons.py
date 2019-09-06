@@ -41,10 +41,15 @@ start = time.time()
 
 args = sys.argv
 if (len(args) == 1):
-    print("Need to include --prod or --dev")
+    print("Need to include --prod, --qa or --dev")
     sys.exit()
 
-mode = '' if (args[1] == '--prod') else '-dev'
+if args[1] == '--prod':
+  mode = '-prod'
+elif args[1] == '--qa':
+  mode = '-qa'
+else: 
+  mode = '-dev'
 
 
 BASE_URL = 'https://bampfa{0}.cspace.berkeley.edu/cspace-services/personauthorities/1e3308ba-9d64-49e7-9541/items/'.format(mode)
