@@ -10,7 +10,7 @@ DECLARE reqstr VARCHAR(4000);
 BEGIN
 
 select string_agg(
-	case when ug.usertype is null then '' else getdispl(ug.usertype) || ': ' end ||
+	case when ug.userInstitutionRole is null then '' else getdispl(ug.userInstitutionRole) || ': ' end ||
 	getdispl(ug.user), '<br>' order by hug.pos)
 into reqstr
 from uoc_common uc

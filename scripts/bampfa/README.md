@@ -5,7 +5,7 @@ This folder contains scripts that updata data in the CollectionSpace BAMPFA depl
 ## Usage
 ### updatePersons.py
 #### To run: 
-    python updatePersons.py --(dev | prod)
+    python updatePersons.py --(dev | prod | qa) 
     
 
 #### Description:
