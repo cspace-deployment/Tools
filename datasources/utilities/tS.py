@@ -27,6 +27,7 @@ except:
 if ('%s' in query_template):
     for query in sys.stdin.readlines():
         # fill in search and try it.
+        filled_in_query = 'something bad happened'
         try:
             filled_in_query = query_template % query.rstrip()
             response = s.query(filled_in_query, rows=0)
