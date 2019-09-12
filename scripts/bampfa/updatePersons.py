@@ -45,7 +45,7 @@ if (len(args) == 1):
     sys.exit()
 
 if args[1] == '--prod':
-  mode = '-prod'
+  mode = ''
 elif args[1] == '--qa':
   mode = '-qa'
 else: 
