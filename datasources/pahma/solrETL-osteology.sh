@@ -12,6 +12,7 @@ cd /home/app_solr/solrdatasources/pahma
 # eases maintainance. ergo, the TENANT parameter
 ##############################################################################
 TENANT=$1
+CORE=osteology
 HOSTNAME="dba-postgres-prod-42.ist.berkeley.edu port=5307 sslmode=prefer"
 USERNAME="reporter_pahma"
 DATABASE="pahma_domain_pahma"
@@ -42,8 +43,20 @@ perl -i -pe 's/([\d\-]+) ([\d:]+)/\1T\2Z/' o7.csv
 # count the types and tokens in the final file
 ##############################################################################
 time python3 evaluate.py o7.csv 4solr.${TENANT}.osteology.csv > counts.osteology.csv
-# ok, now let's load this into solr...
-# clear out the existing data
+##############################################################################
+# check if we have enough data to be worth refreshing...
+##############################################################################
+CSVFILE="4solr.${TENANT}.${CORE}.csv"
+# this value is an approximate lower bound on the number of rows there should
+# be, based on data as of 2019-09-11. It may need to be periodically adjusted.
+MINIMUM=15000
+ROWS=`wc -l < ${CSVFILE}`
+if (( ${ROWS} < ${MINIMUM} )); then
+   echo "Only ${ROWS} rows in ${CSVFILE}; refresh aborted, core left untouched." | mail -s "PROBLEM with ${TENANT}-${CORE} nightly solr refresh" -- cspace-support@lists.berkeley.edu
+   exit 1
+fi
+##############################################################################
+# OK, we are good to go! clear out the existing data
 ##############################################################################
 curl -S -s "http://localhost:8983/solr/${TENANT}-osteology/update" --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
 curl -S -s "http://localhost:8983/solr/${TENANT}-osteology/update" --data '<commit/>' -H 'Content-type:text/xml; charset=utf-8'
@@ -57,9 +70,9 @@ rm o?.csv header4Solr.csv
 cut -f78 4solr.${TENANT}.osteology.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.osteology.blobs.csv
 cut -f78 4solr.${TENANT}.osteology.csv | perl -pe 's/\r//;s/,/\n/g;s/\|/\n/g;' | grep -v 'blob_ss' | grep . | wc -l >> counts.osteology.blobs.csv &
 wait
-cp counts.osteology.blobs.csv /tmp/$TENANT.counts.osteology.blobs.csv
+cp counts.osteology.blobs.csv /tmp/${TENANT}.counts.osteology.blobs.csv
 cat counts.osteology.blobs.csv
-cp counts.osteology.csv /tmp/$TENANT.counts.osteology.csv
+cp counts.osteology.csv /tmp/${TENANT}.counts.osteology.csv
 gzip -f 4solr.${TENANT}.osteology.csv &
 gzip -f 4solr.${TENANT}.internal.csv &
 wait

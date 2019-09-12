@@ -8,7 +8,7 @@ if [ $# -ne 2 ]; then
     echo
     exit
 fi
-head -1 4solr.$TENANT.$CORE.csv > header4Solr.csv
+head -1 4solr.${TENANT}.$CORE.csv > header4Solr.csv
 ##############################################################################
 # here are the schema changes needed: copy all the _s and _ss to _txt, and vv.
 ##############################################################################

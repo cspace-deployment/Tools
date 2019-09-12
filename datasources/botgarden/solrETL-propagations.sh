@@ -16,8 +16,9 @@ cd /home/app_solr/solrdatasources/botgarden
 # eases maintainance. ergo, the TENANT parameter
 ##############################################################################
 TENANT=$1
+CORE=propagations
 SERVER="dba-postgres-prod-42.ist.berkeley.edu port=5313 sslmode=prefer"
-USERNAME="reporter_$TENANT"
+USERNAME="reporter_${TENANT}"
 DATABASE="${TENANT}_domain_${TENANT}"
 CONNECTSTRING="host=$SERVER dbname=$DATABASE"
 export NUMFIELDS=28
@@ -35,7 +36,7 @@ perl -pe "s/urn:cspace:.*?.cspace.berkeley.edu:.*?:name(.*?):item:name(.*?)'(.*?
 head -1 p5.csv | perl -pe 's/\r//;s/\t/_s\t/g;s/_s//;s/$/_s/;' > header4Solr.csv
 #tail -n +2 p5.csv | perl fixdate.pl > p7.csv
 tail -n +2 p5.csv > p6.csv
-cat header4Solr.csv p6.csv > 4solr.$TENANT.propagations.csv
+cat header4Solr.csv p6.csv > 4solr.${TENANT}.${CORE}.csv
 ##############################################################################
 # here are the solr csv update parameters needed for multivalued fields
 ##############################################################################
@@ -44,17 +45,42 @@ wc -l *.csv
 ##############################################################################
 # count the types and tokens in the final file
 ##############################################################################
-time python3 evaluate.py 4solr.$TENANT.propagations.csv /dev/null > counts.propagations.csv &
-curl -S -s "http://localhost:8983/solr/${TENANT}-propagations/update" --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
-curl -S -s "http://localhost:8983/solr/${TENANT}-propagations/update" --data '<commit/>' -H 'Content-type:text/xml; charset=utf-8'
-time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-propagations/update/csv?commit=true&header=true&trim=true&separator=%09&encapsulator=\\" -T 4solr.$TENANT.propagations.csv -H 'Content-type:text/plain; charset=utf-8' &
+time python3 evaluate.py 4solr.${TENANT}.${CORE}.csv /dev/null > counts.${CORE}.csv &
+##############################################################################
+# check if we have enough data to be worth refreshing...
+##############################################################################
+CSVFILE="4solr.${TENANT}.${CORE}.csv"
+# this value is an approximate lower bound on the number of rows there should
+# be, based on data as of 2019-09-11. It may need to be periodically adjusted.
+MINIMUM=22000
+ROWS=`wc -l < ${CSVFILE}`
+if (( ${ROWS} < ${MINIMUM} )); then
+   echo "Only ${ROWS} rows in ${CSVFILE}; refresh aborted, core left untouched." | mail -s "PROBLEM with ${TENANT}-${CORE} nightly solr refresh" -- cspace-support@lists.berkeley.edu
+   exit 1
+fi
+##############################################################################
+# check if we have enough data to be worth refreshing...
+##############################################################################
+CSVFILE="4solr.${TENANT}.${CORE}.csv"
+# this value is an approximate lower bound on the number of rows there should
+# be, based on data as of 2019-09-11. It may need to be periodically adjusted.
+MINIMUM=20000
+ROWS=`wc -l < ${CSVFILE}`
+if (( ${ROWS} < ${MINIMUM} )); then
+   echo "Only ${ROWS} rows in ${CSVFILE}; refresh aborted, core left untouched." | mail -s "PROBLEM with ${TENANT}-${CORE} nightly solr refresh" -- cspace-support@lists.berkeley.edu
+   exit 1
+fi
+# OK, we are good to go! clear out the existing data
+curl -S -s "http://localhost:8983/solr/${TENANT}-${CORE}/update" --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
+curl -S -s "http://localhost:8983/solr/${TENANT}-${CORE}/update" --data '<commit/>' -H 'Content-type:text/xml; charset=utf-8'
+time curl -X POST -S -s "http://localhost:8983/solr/${TENANT}-${CORE}/update/csv?commit=true&header=true&trim=true&separator=%09&encapsulator=\\" -T 4solr.${TENANT}.${CORE}.csv -H 'Content-type:text/plain; charset=utf-8' &
 # count blobs
 cut -f67 4solr.${TENANT}.public.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.public.blobs.csv
 cut -f67 4solr.${TENANT}.public.csv | perl -pe 's/\r//;s/,/\n/g' | grep -v 'blob_ss' | grep . | wc -l >> counts.public.blobs.csv
-cp counts.public.blobs.csv /tmp/$TENANT.counts.public.csv
+cp counts.public.blobs.csv /tmp/${TENANT}.counts.public.csv
 # get rid of intermediate files
 rm p?.csv header4Solr.csv*
 wait
 # zip up .csvs, save a bit of space on backups
-gzip -f 4solr.$TENANT.propagations.csv
+gzip -f 4solr.${TENANT}.${CORE}.csv
 date
