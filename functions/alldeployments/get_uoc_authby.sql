@@ -12,7 +12,7 @@ BEGIN
 select '&nbsp;&nbsp;&nbsp;&nbsp;' || string_agg(
 	case when ag.authorizationdate is null
 		then ''
-		else to_char(ag.authorizationdate::timestamp at time zone 'US/Pacific' at time zone 'UTC, 'yyyy-mm-dd') || ': '
+		else to_char(ag.authorizationdate::timestamp at time zone 'US/Pacific' at time zone 'UTC', 'yyyy-mm-dd') || ': '
 	end
 	|| case when ag.authorizationstatus is null then '' else '<b>' || getdispl(ag.authorizationstatus) || '</b>: ' end
 	|| getdispl(ag.authorizedby), '<br>&nbsp;&nbsp;&nbsp;&nbsp;' order by ag.authorizationdate)
