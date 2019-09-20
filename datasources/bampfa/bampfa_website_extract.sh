@@ -3,6 +3,7 @@
 # script to extract data for the BAMPFA website and email it to those who need it.
 #
 date
+cd /home/app_solr/solrdatasources/bampfa
 TENANT=$1
 SERVER="dba-postgres-prod-42.ist.berkeley.edu port=5313 sslmode=prefer"
 USERNAME="reporter_${TENANT}"
@@ -36,7 +37,6 @@ cat objhdr.tsv 30day.tsv > ${TENANT}_website_objects_extract_30day.tab
 wc ${TENANT}_website_*_extract*.tab
 cp ${TENANT}_website_*_extract*.tab /var/www/static
 echo "https://webapps.cspace.berkeley.edu/${TENANT}_website_objects_extract.tab" | mail -s "new ${TENANT} website extract available" -- ${CONTACT}
-#mail -A ${TENANT}_website_objects_extract.tab.gz -a ${TENANT}_website_artists_extract.tab.gz -s "${TENANT} website extract `date`" -- jblowe@berkeley.edu < /dev/null
 rm bwe.tab artist.header artist.tmp artist.extract objhdr.tsv 7day.tsv 30day.tsv
 gzip -f ${TENANT}_website_*_extract.tab
 #
