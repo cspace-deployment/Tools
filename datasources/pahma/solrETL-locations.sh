@@ -74,7 +74,7 @@ curl -S -s "http://localhost:8983/solr/${TENANT}-${CORE}/update" --data '<commit
 # this POSTs the csv to the Solr / update endpoint
 # note, among other things, the overriding of the encapsulator with \
 ##############################################################################
-time curl -X POST -s -S 'http://localhost:8983/solr/pahma-${CORE}/update/csv?commit=true&header=true&trim=true&separator=%09&encapsulator=\' -T 4solr.pahma.${CORE}.csv -H 'Content-type:text/plain; charset=utf-8' &
+time curl -X POST -s -S "http://localhost:8983/solr/pahma-${CORE}/update/csv?commit=true&header=true&trim=true&separator=%09&encapsulator=\\" -T 4solr.pahma.${CORE}.csv -H 'Content-type:text/plain; charset=utf-8' &
 # count blobs
 cut -f67 4solr.${TENANT}.${CORE}.csv | grep -v 'blob_ss' |perl -pe 's/\r//' |  grep . | wc -l > counts.${CORE}.blobs.csv &
 cut -f67 4solr.${TENANT}.${CORE}.csv | perl -pe 's/\r//;s/,/\n/g' | grep -v 'blob_ss' | grep . | wc -l >> counts.${CORE}.blobs.csv &
