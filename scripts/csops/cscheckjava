@@ -3,8 +3,8 @@
 # Check if Java has been updated. If so, attempt to restart tomcat.
 # This is necessary because reports may fail after a Java update (UCBG-318).
 
-# The UNIX team schedules updates for Tuesday at 6pm on dev, and Thursday
-# at 6pm on production. This script should be run shortly thereafter.
+# The UNIX team schedules updates for Tuesday at 6pm on dev, Wednesday at 6pm
+# on QA, and Thursday at 6pm on production. This script should be run shortly thereafter.
 
 PATH=~/bin:$PATH
 MAIL_TO=cspace-support@lists.berkeley.edu
@@ -76,13 +76,13 @@ if (( JAVA_MOD_TIME_EPOCH > CS_START_TIME_EPOCH )); then
 
 	MAIL_SUBJECT="$SCRIPT_NAME: restart of $SERVICE_NAME $BOUNCE_STATUS"
 
-	if [ "$BOUNCE_STATUS" != "OK" ]; then
+#	if [ "$BOUNCE_STATUS" != "OK" ]; then
 		/bin/mail -s "$MAIL_SUBJECT" $MAIL_TO <<-ENDTEXT
 			$MAIL_INTRO
 
 			$MAIL_DESC
 		ENDTEXT
-	fi
+#	fi
 else
 	echo `date`: Java not updated
 fi
