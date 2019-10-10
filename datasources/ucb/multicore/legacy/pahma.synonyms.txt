@@ -1,0 +1,14 @@
+# Synonyms groups specific to PAHMA
+# NB: they have to be single words, I'm pretty sure...
+Femur,femora,femurs
+Tibia,tibiae,tibias
+Fibula,fibulae,fibulas
+Humerus,humeri,humeruses
+Radius,radii,radiuses
+Ulna,ulnae,ulnas
+Cranium,crania
+Mandible,mandibulae,mandibles
+Vertebra,vertebrae,vertebras
+
+# Synonym mappings can be used for spelling correction too
+pheobe => phoebe
