@@ -118,7 +118,7 @@ mv d6b.csv temp.internal.csv
 # add the blob and card csids and other flags to the rest of the metadata
 # nb: has dependencies on the media file order; less so on the metadata.
 ##############################################################################
-time python3 mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.${CORE}.csv ${CORE} d6a.csv &
+time python3 mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.${CORE}.csv public d6a.csv &
 time python3 mergeObjectsAndMediaPAHMA.py 4solr.${TENANT}.allmedia.csv temp.internal.csv internal d6b.csv &
 wait
 mv d6a.csv temp.${CORE}.csv
