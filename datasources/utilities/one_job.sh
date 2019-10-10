@@ -40,7 +40,7 @@ wait
 ##################################################################################
 # monitor solr datastores
 ##################################################################################
-if [[ `/home/app_solr/checkstatus.sh` ]] ; then /home/app_solr/checkstatus.sh -v | mail -s "PROBLEM with solr refresh nightly refresh" -- jblowe@berkeley.edu ; fi
+if [[ `/home/app_solr/checkstatus.sh` ]] ; then /home/app_solr/checkstatus.sh -v | mail -s "PROBLEM with solr refresh nightly refresh" -- cspace-support@lists.berkeley.edu ; fi
 /home/app_solr/checkstatus.sh -v >> refresh.log
 echo 'done with solr refresh' `date` >> refresh.log
 
