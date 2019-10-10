@@ -1,0 +1,6 @@
+csid_s
+location_s
+crate_s
+sortableobjectnumber_s
+objectname_s
+count_s

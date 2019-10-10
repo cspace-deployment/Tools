@@ -1,0 +1,16 @@
+collector_s
+contributor_s
+creator_s
+description_s
+family_s
+handwritten_s
+identificationnumber_s
+locality_s
+majorcategory_s
+majorgroup_s
+mediadate_s
+name_s
+objectnumber_s
+rightsholder_s
+scientifictaxonomy_s
+typeofmedia_s
