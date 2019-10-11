@@ -2,18 +2,25 @@
 # includes collection object csid to generate link
 # does not include major group filter to exclude algae, bryophytes, and lichen
 # 08/01/2013 include other numbers in annovoucher query.
+# 10/11/2019 fieldloccounty/state/country fields are now refnames
+#            updated regexp_replace to use getdispl(); 
+#            changed where clause to use fieldlocstate IN instead of OR
 
 YYMMDD=`date +%y%m%d`
 HOMEDIR=/home/app_webapps/extracts
 CCH_DIR=$HOMEDIR/cch/current
 CCH_LOG=$HOMEDIR/cch/cch_extract.log
+HOST="dba-postgres-prod-42.ist.berkeley.edu"
+PORT="5310"
+DBNAME="ucjeps_domain_ucjeps"
+DBUSER="reporter_ucjeps"
 
 # clean out any data from previous runs
 rm $CCH_DIR/*
 
 date >> $CCH_LOG
 
-psql -h dba-postgres-prod-42.ist.berkeley.edu -p 5310 -d ucjeps_domain_ucjeps -U reporter_ucjeps << HP_END >> $CCH_LOG
+psql -h $HOST -p $PORT -d $DBNAME -U $DBUSER << HP_END >> $CCH_LOG
 
 create temp table tmp_cch_accessions as
 select
@@ -21,11 +28,11 @@ select
 	hcoc.name as CSID,
 	case
 		when (tig.taxon is not null and tig.taxon <> '')
-		then regexp_replace(tig.taxon, '^.*\)''(.*)''$', '\1')
+		then getdispl(tig.taxon)
 	end as Determination,
 	case
 		when (fc.item is not null and fc.item <> '')
-		then regexp_replace(fc.item, '^.*\)''(.*)''$', '\1')
+		then getdispl(fc.item)
 	end as Collector,
 	co.fieldcollectionnumber as CollectorNumber,
 	sdg.datedisplaydate as CollectionDate,
@@ -54,7 +61,7 @@ select
 		else null
 	end as LateCollectionDate,
 	lg.fieldlocverbatim as Locality,
-	lg.fieldloccounty as County,
+	getdispl(lg.fieldloccounty) as County,
 	lg.velevation as Elevation,
 	lg.minelevation as MinElevation,
 	lg.maxelevation as MaxElevation,
@@ -94,7 +101,7 @@ left outer join hierarchy hlg
 	and hlg.name = 'collectionobjects_naturalhistory:localityGroupList')
 left outer join localitygroup lg on (lg.id = hlg.id)
 where misc.lifecyclestate <> 'deleted'
-and (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+and getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC');
 
 \copy (select * from tmp_cch_accessions order by AccessionNumber) to '$CCH_DIR/cch_accessions.txt' with null as ''
@@ -104,9 +111,9 @@ select
 	co.objectnumber as AccessionNumber,
 	hcoc.name as CSID,
 	htig.pos as Position,
-	regexp_replace(tig.taxon, '^.*\)''(.*)''$', '\1') as Determination,
+	getdispl(tig.taxon) as Determination,
 	tig.qualifier as Qualifier,
-	regexp_replace(tig.identby, '^.*\)''(.*)''$', '\1') as IdBy,
+	getdispl(tig.identby) as IdBy,
 	sdg.datedisplaydate as IdDate,
 	tig.identkind as IdKind,
 	tig.notes as Notes
@@ -127,9 +134,9 @@ left outer join hierarchy hlg
 	and hlg.name = 'collectionobjects_naturalhistory:localityGroupList')
 left outer join localitygroup lg on (lg.id = hlg.id)
 where misc.lifecyclestate <> 'deleted'
-and (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+and getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC')
-and regexp_replace(tig.taxon, '^.*\)''(.*)''$', '\1') != 'no name';
+and getdispl(tig.taxon) != 'no name';
 
 \copy (select * from tmp_cch_determinations order by AccessionNumber, Position) to '$CCH_DIR/cch_determinations.txt' with null as ''
 
@@ -138,8 +145,8 @@ select distinct
 	co.objectnumber as AccessionNumber,
 	hcoc.name as CSID,
 	tsg.typespecimenkind as TypeKind,
-	regexp_replace(tsg.typespecimenbasionym, '^.*\)''(.*)''$', '\1') as Basionym,
-	regexp_replace(tsg.typespecimenassertionby, '^.*\)''(.*)''$', '\1') as AssertionBy
+	getdispl(tsg.typespecimenbasionym) as Basionym,
+	getdispl(tsg.typespecimenassertionby) as AssertionBy
 from collectionobjects_common co
 inner join misc on co.id = misc.id
 inner join hierarchy hcoc on (co.id = hcoc.id)
@@ -153,7 +160,7 @@ inner join hierarchy hlg
 	and hlg.name = 'collectionobjects_naturalhistory:localityGroupList')
 inner join localitygroup lg on (lg.id = hlg.id)
 where misc.lifecyclestate <> 'deleted'
-and (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+and getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC')
 and tsg.typespecimenkind is not null;
 
@@ -178,7 +185,7 @@ inner join hierarchy hlg
 	and hlg.pos = 0)
 inner join localitygroup lg on (lg.id = hlg.id)
 where misc.lifecyclestate <> 'deleted'
-and (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+and getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and (ag.annotationtype is not null or ag.annotationnote is not null)
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC')
 union
@@ -199,7 +206,7 @@ inner join hierarchy hlg
 	and hlg.pos = 0)
 inner join localitygroup lg on (lg.id = hlg.id)
 where misc.lifecyclestate <> 'deleted'
-and (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+and getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and o.numbervalue is not null
 and o.numbervalue != ''
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC');
@@ -220,7 +227,7 @@ inner join hierarchy hlg
 	and hlg.pos = 0)
 inner join localitygroup lg on lg.id = hlg.id
 inner join collectionobjects_common_comments cc on cc.id = co.id
-where (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+and getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC')
 and item <> '' and item is not null
 union
@@ -237,7 +244,7 @@ inner join hierarchy hlg
 	and hlg.pos = 0)
 inner join localitygroup lg on lg.id = hlg.id
 inner join collectionobjects_common_briefdescriptions cb on cb.id = co.id
-where (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+where getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC')
 and item <> '' and item is not null
 union
@@ -245,7 +252,7 @@ select
 	co.objectnumber as AccessionNumber,
 	hcoc.name as CSID,
 	'habitat' as NoteType,
-	fieldcollectionnote as Note
+	co.fieldcollectionnote as Note
 from collectionobjects_common co
 inner join hierarchy hcoc on (co.id = hcoc.id)
 inner join hierarchy hlg
@@ -253,7 +260,7 @@ inner join hierarchy hlg
 	and hlg.name = 'collectionobjects_naturalhistory:localityGroupList'
 	and hlg.pos = 0)
 inner join localitygroup lg on lg.id = hlg.id
-where (lg.fieldlocstate = 'CA' or lg.fieldlocstate = 'Baja California')
+where getdispl(lg.fieldlocstate) in ('CA', 'Baja California')
 and substring(co.objectnumber from '^[A-Z]*') not in ('DHN', 'GOD', 'UCSB', 'UCSC')
 and fieldcollectionnote <> ''
 and fieldcollectionnote is not null;
@@ -265,8 +272,8 @@ select
 	co.objectnumber as AccessionNumber,
 	hcoc.name as CSID,
 	hhpg.pos as Position,
-	regexp_replace(hybridparent, '^.*\)''(.*)''$', '\1') as HybridParentName,
-	hybridparentqualifier as HybridParentQualifier
+	getdispl(hpg.hybridparent) as HybridParentName,
+	hpg.hybridparentqualifier as HybridParentQualifier
 from hybridparentgroup hpg
 inner join hierarchy hhpg on (hhpg.id = hpg.id and primarytype = 'hybridParentGroup')
 inner join collectionobjects_common co on co.id = hhpg.parentid
