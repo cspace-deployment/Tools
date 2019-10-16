@@ -16,6 +16,22 @@ a set of <copyField> statements is created to generate a corresponding keyword (
 To create and maintain these cores, the following scripts and directories are useful:
 
 * legacy - directory containing 'legacy' manually-maintained schema and helpers
-* convert2managedschema.sh -- only needed to convert 'legacy' manually-maintained schema to a list of fields
+* legacy/convert2managedschema.sh -- only needed to convert 'legacy' manually-maintained schema to a list of fields
 * *.fields.txt -- list of fields being extracted in the Solr pipelines.
 * makecores.sh -- script to create and populate the cores based on *.fields.txt
+
+Some examples of running the scripts, etc. to make this go:
+
+```
+# starting and stopping the Solr server (assuming it is installed in ~/solr8)
+cd ~/solr8/
+bin/solr stop
+bin/solr start
+
+# delete a core
+~/solr8/bin/solr delete -c cinefiles-xpublic
+
+# delete and recreate all 12 ucb corse
+cd ~/PycharmProjects/Tools/datasources/ucb/multicore/
+nohup time ./makesolrcores.sh > cores.log 2> /dev/null &
+```
