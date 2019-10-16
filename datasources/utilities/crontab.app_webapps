@@ -4,6 +4,7 @@
 # Also: Piction interfact maintenance, UCJEPS CCH, Cinefiles QC
 # BAMPFA Drupal extract push, and other monitoring tasks
 #
+# m h  dom mon dow   command
 ##################################################################################
 #
 # BMU-related jobs
@@ -12,33 +13,33 @@
 # BMU monitoring / report (i.e. send nightly emails)
 ##################################################################################
 # NB: BAM no longer uses the BMU: derivatives from Piction are pushed to CSpace
-10   5 * * * for t in botgarden cinefiles pahma ucjeps; do python /home/app_webapps/$t/uploadmedia/checkRuns.py /srv/nfs/media/image_upload_cache_$t jobs summary | mail -s "recent $t BMU jobs" jblowe@berkeley.edu,rjaffe@berkeley.edu; done
-10   5 * * * python /home/app_webapps/pahma/uploadmedia/checkRuns.py /srv/nfs/media/image_upload_cache_pahma jobs summary | mail -s "recent PAHMA BMU jobs" pahma-cspace-bmu@lists.berkeley.edu > /dev/null 2>&1
-10   5 * * * python /home/app_webapps/ucjeps/uploadmedia/checkRuns.py /srv/nfs/media/image_upload_cache_ucjeps jobs summary | mail -s "recent UCJEPS BMU jobs" herb_cspace_reports@lists.berkeley.edu > /dev/null 2>&1
-10   5 * * * python /home/app_webapps/cinefiles/uploadmedia/checkRuns.py /srv/nfs/media/image_upload_cache_cinefiles jobs summary | mail -s "recent Cinefiles BMU jobs" bampfacspaceuploader@lists.berkeley.edu > /dev/null 2>&1
-10   5 * * * python /home/app_webapps/botgarden/uploadmedia/checkRuns.py /srv/nfs/media/image_upload_cache_botgarden jobs summary | mail -s "recent UCBG BMU jobs" loughran@berkeley.edu,hforbes@berkeley.edu > /dev/null 2>&1
-##################################################################################
+10   5 * * * for t in botgarden cinefiles pahma ucjeps; do python /home/app_webapps/$t/uploadmedia/checkRuns.py /var/cspace/$t/bmu jobs summary | mail -s "recent $t BMU jobs" jblowe@berkeley.edu,rjaffe@berkeley.edu; done
+10   5 * * * python /home/app_webapps/pahma/uploadmedia/checkRuns.py /var/cspace/pahma/bmu jobs summary | mail -s "recent PAHMA BMU jobs" pahma-cspace-bmu@lists.berkeley.edu > /dev/null 2>&1
+10   5 * * * python /home/app_webapps/ucjeps/uploadmedia/checkRuns.py /var/cspace/ucjeps/bmu jobs summary | mail -s "recent UCJEPS BMU jobs" herb_cspace_reports@lists.berkeley.edu > /dev/null 2>&1
+10   5 * * * python /home/app_webapps/cinefiles/uploadmedia/checkRuns.py /var/cspace/cinefiles/bmu jobs summary | mail -s "recent Cinefiles BMU jobs" bampfacspaceuploader@lists.berkeley.edu > /dev/null 2>&1
+10   5 * * * python /home/app_webapps/botgarden/uploadmedia/checkRuns.py /var/cspace/botgarden/bmu jobs summary | mail -s "recent UCBG BMU jobs" loughran@berkeley.edu,hforbes@berkeley.edu > /dev/null 2>&1
+################################################################################
 # run BMU batch jobs (nightly or twice a day depending)
 ##################################################################################
 # run PAHMA BMU (one minute after 7pm)
-10 19   * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_pahma/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/pahma/uploadmedia/postblob.sh pahma $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_pahma/batches.log 2>&1 ; done
+10 19   * * * shopt -s nullglob; for f in /var/cspace/pahma/bmu/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/pahma/uploadmedia/postblob.sh pahma $f uploadmedia_batch ; } >> /var/cspace/pahma/bmu/batches.log 2>&1 ; done
 # run UCJEPS BMU (ten minutes after 9pm)
-10 21 * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_ucjeps/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/ucjeps/uploadmedia/postblob.sh ucjeps $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_ucjeps/batches.log 2>&1 ; done
+10 21 * * * shopt -s nullglob; for f in /var/cspace/ucjeps/bmu/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/ucjeps/uploadmedia/postblob.sh ucjeps $f uploadmedia_batch ; } >> /var/cspace/ucjeps/bmu/batches.log 2>&1 ; done
 # run Cinefiles BMU ((ten minutes after 10pm)
-10 22 * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_cinefiles/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/cinefiles/uploadmedia/postblob.sh cinefiles $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_cinefiles/batches.log 2>&1 ; done
+10 22 * * * shopt -s nullglob; for f in /var/cspace/cinefiles/bmu/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/cinefiles/uploadmedia/postblob.sh cinefiles $f uploadmedia_batch ; } >> /var/cspace/cinefiles/bmu/batches.log 2>&1 ; done
 # run BAMPFA BMU (currently a no-op -- they now use Piction)
-#30 * * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_bampfa/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/bampfa/uploadmedia/postblob.sh $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_bampfa/batches.log 2>&1 ; done
+#30 * * * * shopt -s nullglob; for f in /var/cspace/bampfa/bmu/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/bampfa/uploadmedia/postblob.sh $f uploadmedia_batch ; } >> /var/cspace/bampfa/bmu/batches.log 2>&1 ; done
 # run UCBG BMU (ten minutes after 11pm)
-10 23 * * * shopt -s nullglob; for f in /srv/nfs/media/image_upload_cache_botgarden/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/botgarden/uploadmedia/postblob.sh botgarden $f uploadmedia_batch ; } >> /srv/nfs/media/image_upload_cache_botgarden/batches.log 2>&1 ; done
+10 23 * * * shopt -s nullglob; for f in /var/cspace/botgarden/bmu/*.step1.csv; do f=$(echo $f | sed -e 's/\.step1.csv//') ; { time /var/www/botgarden/uploadmedia/postblob.sh botgarden $f uploadmedia_batch ; } >> /var/cspace/botgarden/bmu/batches.log 2>&1 ; done
 ##################################################################################
 # clean up the BMU temp directories (erase images more than 48 hours old)
 ##################################################################################
-1 5 * * * for t in bampfa botgarden cinefiles pahma ucjeps; do ~/bin/cleanBMUtempdir.sh /srv/nfs/media/image_upload_cache_${t} >> ~/monitor/${t}.imagedircleanup.log ; done
+1 5 * * * for t in bampfa botgarden cinefiles pahma ucjeps; do ~/bin/cleanBMUtempdir.sh /var/cspace/$t/bmu >> ~/monitor/${t}.imagedircleanup.log ; done
 ##################################################################################
 # run the tricoder upload job (with locks) weekdays 9am-6pm, 3 mins after the hour
 # clean up temp files that sometime get left behind.
 ##################################################################################
-3 9-18 * * 1-5 /home/app_webapps/batch_barcode/tricoderlock.sh > /dev/null 2>&1
+3 7-22 * * 1-5 /home/app_webapps/batch_barcode/tricoderlock.sh > /dev/null 2>&1
 ##################################################################################
 # clean up untidy messes left by tricoder
 ##################################################################################
@@ -46,16 +47,16 @@
 ##################################################################################
 # update BAMPFA's materialized view for Piction
 ##################################################################################
-0 18 * * * foo=`psql -d "host=dba-postgres-prod-42.ist.berkeley.edu dbname=piction_transit port=5415 sslmode=prefer" -U "piction" -c "refresh materialized view piction.bampfa_metadata_mv" 2>&1` ; if [[ $foo != "REFRESH MATERIALIZED VIEW" ]] ; then echo "$foo" | mail -s "PROBLEM with Piction mv update status on Prod" cspace-app-logs@lists.berkeley.edu ; fi
+#0 18 * * * foo=`psql -d "host=dba-postgres-prod-42.ist.berkeley.edu dbname=piction_transit port=5415 sslmode=prefer" -U "piction" -c "refresh materialized view piction.bampfa_metadata_mv" 2>&1` ; if [[ $foo != "REFRESH MATERIALIZED VIEW" ]] ; then echo "$foo" | mail -s "PROBLEM with Piction mv update status on Prod" cspace-app-logs@lists.berkeley.edu ; fi
 ##################################################################################
 # keep a set of the BMU log files
 ##################################################################################
-5 6 * * *  for t in bampfa botgarden cinefiles pahma ucjeps; do cp -p /srv/nfs/media/image_upload_cache_${t}/*.csv /home/app_webapps/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; cp -p /srv/nfs/media/image_upload_cache_${t}/*.trace.log /home/app_webapps/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; done
+5 6 * * *  for t in bampfa botgarden cinefiles pahma ucjeps; do cp -p /var/cspace/$t/bmu/*.csv /home/app_webapps/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; cp -p /var/cspace/$t/bmu/*.trace.log /home/app_webapps/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; done
 ##################################################################################
 # monitor imageserver caches
 ##################################################################################
-0 4 * * 1 cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do ./monitorImageCache.sh ~/cache/$t > report.txt 2>&1 ; cat report.txt | mail -s "image cache status" -- cspace-app-logs@lists.berkeley.edu ; done
-0 4 * * * cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do python checkCache.py ~/cache/$t >> $t.imagecache.log ; done
+#0 4 * * 1 cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do ./monitorImageCache.sh ~/cache/$t > report.txt 2>&1 ; cat report.txt | mail -s "image cache status" -- cspace-app-logs@lists.berkeley.edu ; done
+#0 4 * * * cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do python checkCache.py ~/cache/$t >> $t.imagecache.log ; done
 # clean up the caches: files w mod times > 7 days, 404's
 0 5 * * * find ~/cache/*/images -type f -size +2M -mmin +59 -delete > /dev/null 2>&1
 0 6 * * * find ~/cache/*/images -type f -mtime +7 -delete > /dev/null 2>&1
@@ -73,7 +74,7 @@
 # refresh the denormalized hierarchies
 ##################################################################################
 01 1 * * * ~/hierarchies/refresh.sh pahma > /dev/null 2>&1
-15 1 * * * cd ~/hierarchies ; ./docounts.sh > /dev/null 2>&1 ; ./checkstatus.sh pahma | mail -s "hierarchies refresh" mtblack@berkeley.edu
+15 1 * * * cd ~/hierarchies ; ./checkstatus.sh pahma | mail -s "hierarchies refresh" mtblack@berkeley.edu
 ##################################################################################
 # run the cinefiles month qc report
 ##################################################################################
@@ -89,4 +90,4 @@
 10 04 * * * perl -ne 'next if /^(start|POST|PUT)/;s/\r//;s/elapsedtime= *//;s/\t[a-z]+=/\t/g;print;' /tmp/dj.tools-prod.csv | awk -v OFS="\t" -F"\t" '{print $2,$5,$3,$7,$1,$6,$10,$8,$9}' > ~/monitor/currappuse.csv ; cat ~/monitor/currappuse.csv ~/monitor/webappuse.csv | sort -u > /tmp/tmp2 ; mv /tmp/tmp2 ~/monitor/webappuse.csv ; perl ~/monitor/monitorWebapps.pl ~/monitor/webappuse.csv > /var/www/static/webappuse.html
 # analyze and summarize the django logs, keep a copy of an extract of the other vhost logs
 05 04 * * * cd ~/monitor ; ./analyze.sh > /dev/null 2>&1 ; ./corestats.sh > /dev/null 2>&1 ; ./keep.apache.logs.sh > /dev/null 2>&1
-20 04 * * * wc -l /srv/nfs/media/image_upload_cache_*/*.processed.csv | perl -pe 's/^ *(\d+) /\1\t/;s#/srv/nfs/media/image_upload_cache_##;s#/#\t#g;s/.processed.csv//' > ~/monitor/bmu-counts.csv
+20 04 * * * wc -l /var/cspace/*/bmu/*.processed.csv | perl -pe 's/^ *(\d+) /\1\t/;s#/var/cspace/.*/bmu##;s#/#\t#g;s/.processed.csv//' > ~/monitor/bmu-counts.csv
