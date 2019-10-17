@@ -20,18 +20,22 @@ To create and maintain these cores, the following scripts and directories are us
 * *.fields.txt -- list of fields being extracted in the Solr pipelines.
 * makecores.sh -- script to create and populate the cores based on *.fields.txt
 
-Some examples of running the scripts, etc. to make this go:
+Some examples of running the scripts, etc. to make this go (on RTL servers):
 
 ```
-# starting and stopping the Solr server (assuming it is installed in ~/solr8)
-cd ~/solr8/
-bin/solr stop
-bin/solr start
+# starting and stopping the Solr server
+user@blacklight-dev:~$ sudo /bin/systemctl start solr.service
+user@blacklight-dev:~$ sudo /bin/systemctl stop solr.service
 
-# delete a core
-~/solr8/bin/solr delete -c cinefiles-xpublic
+# delete a single core
+/opt/solr/bin/solr delete -c cinefiles-public
 
-# delete and recreate all 12 ucb corse
-cd ~/PycharmProjects/Tools/datasources/ucb/multicore/
+# delete and recreate all 12 ucb cores
+cd ~/Tools/datasources/ucb/multicore/
 nohup time ./makesolrcores.sh > cores.log 2> /dev/null &
 ```
+
+After this finishes, you'll need to reload all the cores with fresh data.
+This is most easily accomplished by rerunning the "solr pipelines"
+
+See the Solr pipeline documentation: [README.md](../..README.md)

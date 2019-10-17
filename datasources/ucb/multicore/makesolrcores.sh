@@ -1,12 +1,16 @@
 # drop and then recreate all UCB Solr cores based on the content of this script
 # and the default configuration available in solr default configsets
 
+# this script inspired by https://github.com/Brown-University-Library/bul-traject/blob/master/solr7/define_schema.sh
+# thanks!
+
 SOLR_PORT="8983"
-# SOLR_CONF_PATH="/Users/hectorcorrea/solr-7.4.0/server/solr/$SOLR_CORE/conf"
-# SOLR_CONFIG_XML="$SOLR_CONF_PATH/solrconfig.xml"
-# STOPWORDS_FILE="$SOLR_CONF_PATH/stopwords.txt"
-# STOPWORDS_EN_FILE="$SOLR_CONF_PATH/lang/stopwords_en.txt"
-SOLR_CMD=~/solr8/bin/solr
+
+# for solr8 as deployed on my laptop
+# SOLR_CMD=~/solr8/bin/solr
+
+# for solr8 as deployed on RTL-managed Ubuntu servers
+SOLR_CMD=/opt/solr/bin/solr
 
 SOLR_CORES="bampfa-public
 bampfa-internal
