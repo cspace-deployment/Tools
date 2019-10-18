@@ -34,7 +34,7 @@ function define_field_types()
     echo "Defining new types, redefining others..."
 
     echo "  alphaOnlySort..."
-    curl -S -S -X POST -H 'Content-type:application/json' --data-binary '{
+    curl -S -X POST -H 'Content-type:application/json' --data-binary '{
       "add-field-type" : {
          "name":"alphaOnlySort",
          "class":"solr.TextField",
@@ -65,7 +65,7 @@ function define_field_types()
 
     #return 0
     echo "  text_general..."
-    curl -S -S -X POST -H 'Content-type:application/json' --data-binary '{
+    curl -S -X POST -H 'Content-type:application/json' --data-binary '{
         "replace-field-type": {
             "name": "text_general",
             "class": "solr.TextField",
@@ -175,6 +175,34 @@ function define_dynamic_fields()
     }' $SOLR_CORE_URL/schema
 }
 
+function define_special_fields()
+{
+    # ====================
+    # special fields
+    # ====================
+    echo "Defining special fields for $1..."
+
+    if [[ "$1" = "pahma-public" || "$1" == "pahma-internal" ]]; then
+        curl -S -X POST -H 'Content-type:application/json' --data-binary '{
+            "add-field":{
+                "name":"objname_sort",
+                "type":"alphaOnlySort",
+                "stored":false,
+                "indexed":true}
+        }' $SOLR_CORE_URL/schema
+        curl -S -X POST -H 'Content-type:application/json' --data-binary '{
+            "add-copy-field":{"source":
+                "objname_s",
+                "dest": [ "objname_sort" ]}
+        }' $SOLR_CORE_URL/schema
+        curl -S -X POST -H 'Content-type:application/json' --data-binary '{
+            "add-copy-field":{"source":
+                "objmusno_s",
+                "dest": [ "objmusno_s_lower" ]}
+        }' $SOLR_CORE_URL/schema
+    fi
+}
+
 for SOLR_CORE in $SOLR_CORES
 do
     SOLR_CORE_URL="http://localhost:$SOLR_PORT/solr/$SOLR_CORE"
@@ -198,6 +226,7 @@ do
     define_field_types
     define_fields
     define_dynamic_fields
+    define_special_fields ${SOLR_CORE}
     create_copy_fields ${SOLR_CORE}.fields.txt
 
     # add all these to the 'catch-all' field
