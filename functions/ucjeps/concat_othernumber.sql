@@ -5,7 +5,7 @@ RETURNS VARCHAR
 AS
 $$
 
-DECLARE othernumstring VARCHAR(300);
+DECLARE othernumstring VARCHAR;
 
 BEGIN
 
