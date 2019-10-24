@@ -83,9 +83,7 @@ with open(sys.argv[1], 'r') as MEDIA:
         # NB: the test 'burial' in context of use occurs below -- we only mask if the FCP is in North America
         if not (approvedforweb == 't'): ispublic = 'notpublic'
         if media_type == 'legacy documentation':
-            # while cards (i.e. legacy documentation) are images, we don't count them as such
             media_available = media_type
-            ispublic = 'public'
         count[media_type] += 1
         count[ispublic] += 1
         count['media available %s' % media_available] += 1
@@ -116,7 +114,6 @@ with open(sys.argv[1], 'r') as MEDIA:
         if runtype == 'public' and ispublic != 'public':
             blobcsid = restricted_csid
             md5 = restricted_md5
-
 
         if not check(blobs[objectcsid]['mimetypes'], mimetype):
             blobs[objectcsid]['mimetypes'].append(mimetype)
