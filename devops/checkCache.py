@@ -21,7 +21,7 @@ def count(cachedir):
                     numfiles += 1
                     sizesinbytes += os.path.getsize(os.path.join(root, f))
         except (IOError, OSError):
-            print 'error in directory %s' % topdir
+            print('error in directory %s' % topdir)
 
     return numfiles, numdirs, sizesinbytes
 
@@ -30,5 +30,4 @@ if __name__ == "__main__":
     import sys
     import time
 
-    print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-    print "files %s, dirs %s, size %s" % (count(sys.argv[1]))
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),"files %s, dirs %s, size %s" % (count(sys.argv[1])))
