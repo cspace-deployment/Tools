@@ -51,16 +51,16 @@
 ##################################################################################
 # keep a set of the BMU log files
 ##################################################################################
-5 6 * * *  for t in bampfa botgarden cinefiles pahma ucjeps; do cp -p /var/cspace/$t/bmu/*.csv /home/app_webapps/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; cp -p /var/cspace/$t/bmu/*.trace.log /home/app_webapps/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; done
+5 6 * * *  for t in bampfa botgarden cinefiles pahma ucjeps; do cp -p /var/cspace/$t/bmu/*.csv /var/cspace/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; cp -p /var/cspace/$t/bmu/*.trace.log/var/cspace/monitor/image_upload_cache_${t}/ > /dev/null 2>&1 ; done
 ##################################################################################
 # monitor imageserver caches
 ##################################################################################
-#0 4 * * 1 cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do ./monitorImageCache.sh ~/cache/$t > report.txt 2>&1 ; cat report.txt | mail -s "image cache status" -- cspace-app-logs@lists.berkeley.edu ; done
-#0 4 * * * cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do python checkCache.py ~/cache/$t >> $t.imagecache.log ; done
+#0 4 * * 1 cd /home/app_webapps/monitor ; rm report.txt; for t in bampfa botgarden cinefiles pahma ucjeps; do ./monitorImageCache.sh /var/cspace/$t/imagecache > report.txt 2>&1 ; done; cat report.txt | mail -s "image cache status" -- cspace-app-logs@lists.berkeley.edu
+0 4 * * * cd /home/app_webapps/monitor ; for t in bampfa botgarden cinefiles pahma ucjeps; do python checkCache.py /var/cspace/$t/imagecache/ >> $t.imagecache.log ; done
 # clean up the caches: files w mod times > 7 days, 404's
-0 5 * * * find ~/cache/*/images -type f -size +2M -mmin +59 -delete > /dev/null 2>&1
-0 6 * * * find ~/cache/*/images -type f -mtime +7 -delete > /dev/null 2>&1
-0 4 * * 1 find ~/cache/*/images -type f -exec grep -q -a 'filename="404' {} \; -exec echo {} \; -exec rm {} \; > /dev/null 2>&1
+0 5 * * * find /var/cspace/*/imagecache/ -type f -size +2M -mmin +59 -delete > /dev/null 2>&1
+0 6 * * * find /var/cspace/*/imagecache/ -type f -mtime +7 -delete > /dev/null 2>&1
+0 4 * * 1 find /var/cspace/*/imagecache/ -type f -exec grep -q -a 'filename="404' {} \; -exec echo {} \; -exec rm {} \; > /dev/null 2>&1
 ##################################################################################
 # run the UCJEPS jobs weekly, on Saturday
 ##################################################################################
@@ -75,11 +75,6 @@
 ##################################################################################
 01 1 * * * ~/hierarchies/refresh.sh pahma > /dev/null 2>&1
 15 1 * * * cd ~/hierarchies ; ./checkstatus.sh pahma | mail -s "hierarchies refresh" mtblack@berkeley.edu
-##################################################################################
-# run the cinefiles month qc report
-##################################################################################
-00 03 1 * * /home/app_webapps/bin/qc/monthly.sh cinefiles_reports@lists.berkeley.edu > /dev/null 2>&1
-10 03 1 * * /home/app_webapps/bin/qc/monthly.sh cspace-app-logs@lists.berkeley.edu > /dev/null 2>&1
 ##################################################################################
 # run the nightly bampfa extract for the drupal website
 ##################################################################################
