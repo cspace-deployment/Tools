@@ -16,9 +16,9 @@ def run(files):
         if first is None:
             first = data
         else:
-            first.extend(data)
+            first.append(data)
     if first is not None:
-        print ElementTree.tostring(first)
+        print(ElementTree.tostring(first).decode('utf-8'))
 
 if __name__ == "__main__":
     run(sys.argv[1:])
