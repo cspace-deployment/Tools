@@ -98,7 +98,7 @@ SELECT
   ost.ilium_r                        AS "ilium_r_s",
   ost.int_cuneif_2_l                 AS "int_cuneif_2_l_s",
   ost.int_cuneif_2_r                 AS "int_cuneif_2_r_s",
-  ost.inventoryanalyst               AS "inventoryanalyst_s",
+  REGEXP_REPLACE(ost.inventoryanalyst, '^.*\)''(.*)''$', '\1') AS "inventoryanalyst_s",
   ost.inventorydate                  AS "inventorydate_dt",
   ost.inventoryid                    AS "inventoryid_s",
   ost.inventoryiscomplete            AS "inventoryiscomplete_b",
