@@ -36,7 +36,7 @@ HERE
 
    PAGENUM=0
    while [ $MAXCURLS -gt 0 ]; do
-       curl -u "${CREDS}" -o /tmp/tmp.xml "${SERVER}/cspace-services/$1/items?pgSz=${PAGESIZE}&pgNum=${PAGENUM}&wf_deleted=false"
+       curl -S -s -u "${CREDS}" -o /tmp/tmp.xml "${SERVER}/cspace-services/$1/items?pgSz=${PAGESIZE}&pgNum=${PAGENUM}&wf_deleted=false"
 
 
        if grep -q "<itemsInPage>0</itemsInPage>" /tmp/tmp.xml
