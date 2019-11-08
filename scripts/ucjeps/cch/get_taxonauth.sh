@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # get the following data for records in the Default Scientific Name Taxonomy Authority
 #	csid
 #	display name

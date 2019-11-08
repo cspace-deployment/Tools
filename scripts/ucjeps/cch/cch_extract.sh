@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # includes collection object csid to generate link
 # does not include major group filter to exclude algae, bryophytes, and lichen
 # 08/01/2013 include other numbers in annovoucher query.

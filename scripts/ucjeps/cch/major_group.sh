@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 YYMMDD=`date +%y%m%d`
 HOMEDIR=/home/app_webapps/extracts
