@@ -219,15 +219,13 @@ if [[ $rebuild_services_needed == true ]]; then
 
 	find /tmp -maxdepth 1 \( -name "cspace-bindings-*" -o -name "merged-app-config-*" \) -user ${USER} -type d -prune -exec rm -rf {} + 2> /dev/null
 
-	if [[ -z $INSTALLED_VERSION ]]; then
-		# Import permissions on the initial install.
+	# Import permissions on the initial install.
 
-		echo "Importing permissions..."
+	echo "Importing permissions..."
 
-		if ! ant import; then
-			echo "ERROR: Failed to import permissions"
-			exit 1
-		fi
+	if ! ant import; then
+		echo "ERROR: Failed to import permissions"
+		exit 1
 	fi
 
 	# A full deploy of the services layer deploys the ui and services artifacts,
