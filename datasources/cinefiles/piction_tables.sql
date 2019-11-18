@@ -18,7 +18,7 @@ CREATE TABLE piction_interface_cinefiles
 	object_number character varying,
 	object_csid character varying (100),
 	action character varying(20),
-	relationship character varying(20),
+	relationship character varying(20) DEFAULT 'ALTERNATE',
 	dt_addedtopiction timestamp without time zone,
 	dt_uploaded timestamp without time zone,
 	bimage bytea,
