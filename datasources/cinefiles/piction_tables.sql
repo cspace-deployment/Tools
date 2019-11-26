@@ -1,3 +1,4 @@
+/*
 -- pg_dump unavailable, so the create statements for piction_interface and piction_history are re-engineered from table descriptions of the original tables piction_history and piction_interface
 -- 2019/10/10: added object_number column, references collectionobjects_common.objectnumber
 
