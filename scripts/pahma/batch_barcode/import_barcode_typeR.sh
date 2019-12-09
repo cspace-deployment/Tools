@@ -33,7 +33,7 @@
 #   + because of the added "schema0", this batch need to run "sed" to change to "schema"
 
 # set environment variables for this run
-source ~/batch_barcode/setBarcodeEnv.sh
+source setBarcodeEnv.sh
 
 m=`date '+%m'`  # init to today's month/day/year
 d=`date '+%d'`

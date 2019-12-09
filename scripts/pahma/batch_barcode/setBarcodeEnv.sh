@@ -14,6 +14,6 @@ export CONNECTSTRING="host=dba-postgres-prod-32.ist.berkeley.edu port=5307 sslmo
 export SUBJECT="Tricoder Upload Results `date`"
 export EMAIL="pahma-tricoder@lists.berkeley.edu"
 
-export ROOT_PATH=/home/app_webapps/batch_barcode
+export ROOT_PATH=/var/cspace/pahma/tricoder/batch_barcode
 export UPLOAD_PATH=${ROOT_PATH}/input
 
