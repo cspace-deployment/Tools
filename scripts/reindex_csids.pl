@@ -8,10 +8,10 @@ use File::Spec;
 use LWP;
 use strict;
 
-my $batch_host = 'pahma.cspace.berkeley.edu';
-my $batch_csid = '9985ec4d-0456-40cf-bbb6';
-my $batch_user = 'import@pahma.cspace.berkeley.edu';
-my $batch_password = 'lash428!puck';
+my $batch_host = 'REDACTED';
+my $batch_csid = 'REDACTED';
+my $batch_user = 'REDACTED';
+my $batch_password = 'REDACTED';
 
 my $batch_size = 100;
 my $start_batch = 1;
