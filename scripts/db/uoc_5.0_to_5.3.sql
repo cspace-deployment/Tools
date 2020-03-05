@@ -120,13 +120,6 @@ AND location != '';
 	Foreign-key constraints:
 	    "authorizationgroup_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
 
-	Migrate the following from uoc_common to authorizationgroup:
-
-	uuid_generate_v4()::varchar as id ==> authorizationgroup.id
-	uoc_common.authorizationdate =======> authorizationgroup.authorizationdate
-	uoc_common.authorizationnote =======> authorizationgroup.authorizationnote
-	uoc_common.authorizedby ============> authorizationgroup.authorizedby
-
 	Migrate/add the following from uoc_common to hierarchy:
 
 	uuid_generate_v4()::varchar as id ====> hierarchy.id
@@ -135,6 +128,13 @@ AND location != '';
 	'uoc_common:authorizationGroupList' ==> hierarchy.name
 	True =================================> hierarchy.isproperty
 	'authorizationGroup' =================> hierarchy.primarytype
+
+	Migrate the following from uoc_common to authorizationgroup:
+
+	uuid_generate_v4()::varchar as id ==> authorizationgroup.id
+	uoc_common.authorizationdate =======> authorizationgroup.authorizationdate
+	uoc_common.authorizationnote =======> authorizationgroup.authorizationnote
+	uoc_common.authorizedby ============> authorizationgroup.authorizedby
 
 	Adding new records to the authorizationgroup table requires generating a UUID for the new records, as well as adding new reference records to the hierarchy table.
 
@@ -156,21 +156,7 @@ WHERE authorizationdate is not null
 OR authorizationnote is not null
 OR authorizedby is not null;
 
--- Insert new records into authorizationgroup table:
-
-INSERT INTO public.authorizationgroup (
-	id, 
-	authorizationdate, 
-	authorizationnote, 
-	authorizedby)
-SELECT 
-	id,
-	authorizationdate, 
-	authorizationnote, 
-	authorizedby
-FROM authgrouptemp;
-
--- Insert new records into hierarchy table:
+-- Insert new records into hierarchy table first, due to foreign key on authorizationgroup table to hierarchy.id:
 
 INSERT INTO public.hierarchy (
 	id, 
@@ -188,6 +174,20 @@ SELECT
 	'authorizationGroup'
 FROM authgrouptemp;	
 
+-- Insert new records into authorizationgroup table:
+
+INSERT INTO public.authorizationgroup (
+	id, 
+	authorizationdate, 
+	authorizationnote, 
+	authorizedby)
+SELECT 
+	id,
+	authorizationdate, 
+	authorizationnote, 
+	authorizedby
+FROM authgrouptemp;
+
 /* Migrate uoc_common.startsingledate data to usedategroup table:
 	
 	                    Table "public.usedategroup"
@@ -204,11 +204,6 @@ FROM authgrouptemp;
 	Foreign-key constraints:
 	    "usedategroup_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
 
-	Migrate the following from uoc_common to usedategroup:
-
-	uuid_generate_v4()::varchar as id ==> usedategroup.id
-	uoc_common.startsingledate =========> usedategroup.usedate
-
 	Migrate/add the following from uoc_common to hierarchy:
 
 	uuid_generate_v4()::varchar as id ====> hierarchy.id
@@ -217,6 +212,15 @@ FROM authgrouptemp;
 	'uoc_common:useDateGroupList' ========> hierarchy.name
 	True =================================> hierarchy.isproperty
 	'useDateGroup' =======================> hierarchy.primarytype
+
+	Migrate the following from uoc_common to usedategroup:
+
+	uuid_generate_v4()::varchar as id ==> usedategroup.id
+	uoc_common.startsingledate =========> usedategroup.usedate
+
+	Adding new records to the usedategroup table requires generating a UUID for the new records, as well as adding new reference records to the hierarchy table.
+
+	Only add a new record when there is a value for uoc_common.startsingledate.  Do not create empty records in usedategroup.
 
 */
 
@@ -230,17 +234,7 @@ SELECT
 FROM public.uoc_common
 WHERE startsingledate IS NOT NULL;
 
--- Insert new records into usedategroup table:
-
-INSERT INTO public.usedategroup (
-	id, 
-	usedate)
-SELECT 
-	id,
-	startsingledate
-FROM usedategrouptemp;
-
--- Insert new records into hierarchy table:
+-- Insert new records into hierarchy table first, due to foreign key on usedategroup table to hierarchy.id:
 
 INSERT INTO public.hierarchy (
 	id, 
@@ -256,6 +250,16 @@ SELECT
 	'uoc_common:useDateGroupList',
 	True,
 	'useDateGroup'
+FROM usedategrouptemp;
+
+-- Insert new records into usedategroup table:
+
+INSERT INTO public.usedategroup (
+	id, 
+	usedate)
+SELECT 
+	id,
+	startsingledate
 FROM usedategrouptemp;
 
 -- End of V1 to V2 Migration
