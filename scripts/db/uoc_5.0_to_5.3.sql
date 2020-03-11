@@ -1,19 +1,39 @@
-/* Use of Collections V1 to V2 Migration
+/* Use of Collections V1 Migration
 
-	This SQL script migrates existing Use of Collections data from V1 to V2 based on the following:
-	  1) The appropriate database is specified in executing this script.  This script does not contain commands to connect to the appropriate database.
-	  2) New database changes have been made, e.g. new tables created, foreign keys added to hierarchy table.
-	  3) The "uuid-ossp" Postgres extension exists in order to execute the uuid_generate_v4() function to generate UUID for new records. To add the extension:
-	     -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-	  4) Once existing data has been migrated, this script does not delete data, nor drop the newly obsolete columns in the database.
+-- This SQL script migrates existing Use of Collections data from V1 to incorporate new features developed by the UCB CSpace team, based on the following assumptions:
 
-	V1 Use of Collections tables:
+	-- The appropriate database is specified in executing this script.
+	   This script does not contain commands to connect to the appropriate database.
+
+	-- New database changes have been made: e.g. new tables created, foreign keys added.
+
+	-- New records should not exist in newly created tables.
+	   Since this script may possibly be run repeatedly, it only creates a new record,
+	   if the record has not yet been migrated.
+
+	-- The uuid_generate_v4() function is required to generate UUID for new records.
+	   Installing the uuid-ossp extension will make all UUID generation functions available.
+	   This script creates and uses the uuid_generate_v4() function to generate a version 4 UUID.
+
+           --  To install the uuid-ossp extension:
+ 		CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+	   -- To create the uuid_generate_v4() function:
+		CREATE OR REPLACE FUNCTION public.uuid_generate_v4()
+		  RETURNS uuid
+		  LANGUAGE c
+		  PARALLEL SAFE STRICT
+		AS '$libdir/uuid-ossp', $function$uuid_generate_v4$function$;
+
+	-- Once existing data has been migrated, this script does not delete data, nor drop the newly obsolete columns.
+
+-- V1 Use of Collections tables:
 	
 	public.uoc_common ============> Various fields updated to repeatable fields/groups
 	public.uoc_common_methodlist => NO MIGRATION NEEDED
 	public.usergroup =============> NO MIGRATION NEEDED
 	
-	V1 uoc_common table description:
+-- V1 uoc_common table description:
 	
 	                            Table "public.uoc_common"
 	      Column       |            Type             | Nullable | Migrate To
@@ -35,7 +55,7 @@
 	Foreign-key constraints:
 	    "uoc_common_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
 	
-	NO CHANGES are required for the following fields in uoc_common:
+-- NO CHANGES are required for the following uoc_common columns:
 	
 	uoc_common.id
 	uoc_common.enddate
@@ -45,29 +65,20 @@
 	uoc_common.result
 	uoc_common.referencenumber
 	
-	The following fields are now repeatable fields, and the data will be stored in new tables:
+-- REPEATABLE FIELDS: The following uoc_common columns are now repeatable fields; migrated as follows:
 	
 	uoc_common.location ==========> uoc_common_locationlist.item
 	uoc_common.authorizationdate => authorizationgroup.authorizationdate
 	uoc_common.authorizationnote => authorizationgroup.authorizationnote
 	uoc_common.authorizedby ======> authorizationgroup.authorizedby
 	uoc_common.startsingledate ===> usedategroup.usedate
-	
-	               Table "public.authorizationgroup"
-	       Column        |            Type             | Modifiers 
-	---------------------+-----------------------------+-----------
-	 id                  | character varying(36)       | not null
-	 authorizationnote   | character varying           | 
-	 authorizedby        | character varying           | 
-	 authorizationdate   | timestamp without time zone | 
-	 authorizationstatus | character varying           | 
-	Indexes:
-	    "authorizationgroup_pk" PRIMARY KEY, btree (id)
-	Foreign-key constraints:
-	    "authorizationgroup_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
-*/
 
-/* Migrate to uoc_common.location to uoc_common_locationlist table:
+*/
+	
+
+/* 1) Migrate uoc_common.location data to uoc_common_locationlist table:
+
+-- NEW uoc_common_locationlist table description:
 	
 	   Table "public.uoc_common_locationlist"
 	 Column |         Type          | Modifiers 
@@ -80,18 +91,18 @@
 	Foreign-key constraints:
 	    "uoc_common_locationlist_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
 
-	Migrate/add the following from uoc_common to uoc_common_locationlist:
+-- Since there is only <= 1 value for uoc_common.location, uoc_common_locationlist.pos can be set to 0.
+-- Only add a new record when there is a value for uoc_common.location, and if the record does not yet exist.
+-- Do not create empty records in uoc_common_locationlist.
 
 	uoc_common.id ========> uoc_common_locationlist.id
 	0 ====================> uoc_common_locationlist.pos
 	uoc_common.location ==> uoc_common_locationlist.item
 
-	Since there is only <= 1 value for uoc_common.location, uoc_common_locationlist.pos can be set to 0.
-
-	Only add a new record when there is a value for uoc_common.location.  Do not create empty records in uoc_common_locationlist.
-*/
-
--- Insert new records into uoc_common_locationlist table:
+-- Insert a new record into uoc_common_locationlist table.
+-- Only add a new record when there is a value for location.
+-- Do not create empty records in uoc_common_locationlist.
+-- Only add the record if it does NOT already exist:
 
 INSERT INTO public.uoc_common_locationlist (
 	id, 
@@ -103,9 +114,15 @@ SELECT
 	location
 FROM public.uoc_common
 WHERE location IS NOT NULL
-AND location != '';
+AND location != ''
+ON CONFLICT DO NOTHING;
 
-/* Migrate uoc_common authorization data to authorizationgroup table:
+*/
+
+
+/* 2) Migrate uoc_common authorization data to authorizationgroup table:
+
+-- NEW authorizationgroup table description:
 
 	               Table "public.authorizationgroup"
 	       Column        |            Type             | Modifiers 
@@ -120,7 +137,9 @@ AND location != '';
 	Foreign-key constraints:
 	    "authorizationgroup_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
 
-	Migrate/add the following from uoc_common to hierarchy:
+-- Migrate/add from uoc_common to hierarchy.
+-- The foreign key on the authorizationgroup table requires first adding new records to hierarchy.
+-- Use the uuid_generate_v4() function to generate a new type 4 UUID for the new record.
 
 	uuid_generate_v4()::varchar as id ====> hierarchy.id
 	uoc_common.id ========================> hierarchy.parentid
@@ -129,34 +148,57 @@ AND location != '';
 	True =================================> hierarchy.isproperty
 	'authorizationGroup' =================> hierarchy.primarytype
 
-	Migrate the following from uoc_common to authorizationgroup:
+-- Migrate from uoc_common to authorizationgroup:
+-- Only add a new record when there is a value for authorizationdate, authorizationnote, or authorizedby.
+-- Do not create empty records in authorizationgroup.
 
-	uuid_generate_v4()::varchar as id ==> authorizationgroup.id
+	hierarchy.id ==> authorizationgroup.id
 	uoc_common.authorizationdate =======> authorizationgroup.authorizationdate
 	uoc_common.authorizationnote =======> authorizationgroup.authorizationnote
 	uoc_common.authorizedby ============> authorizationgroup.authorizedby
 
-	Adding new records to the authorizationgroup table requires generating a UUID for the new records, as well as adding new reference records to the hierarchy table.
-
-	Only add a new record when there is a value for uoc_common.authorizationdate or uoc_common.authorizationnote or uoc_common.authorizedby.  Do not create empty records in authorizationgroup.
-
 */
+
+-- Create function uuid_generate_v4() for generating UUID:
+
+CREATE OR REPLACE FUNCTION public.uuid_generate_v4()
+ RETURNS uuid
+ LANGUAGE c
+ PARALLEL SAFE STRICT
+AS '$libdir/uuid-ossp', $function$uuid_generate_v4$function$
 
 -- Create temp table to hold data for populating authorizationgroup and hierarchy tables:
 
-CREATE TEMP TABLE authgrouptemp as
-SELECT
-	id as parentid,
-	uuid_generate_v4()::varchar as id,
-	authorizationdate, 
-	authorizationnote, 
-	authorizedby
-FROM public.uoc_common
-WHERE authorizationdate is not null
-OR authorizationnote is not null
-OR authorizedby is not null;
+CREATE TEMP TABLE authgrouptemp AS
+SELECT 
+	uuid_generate_v4()::varchar AS id,
+	x.parentid,
+	x.authorizationdate, 
+	x.authorizationnote, 
+	x.authorizedby
+FROM (
+	SELECT
+		uc.id AS parentid,
+		uc.authorizationdate, 
+		uc.authorizationnote, 
+		uc.authorizedby
+	FROM public.uoc_common uc
+	WHERE uc.authorizationdate IS NOT NULL
+	OR uc.authorizationnote IS NOT NULL
+	OR uc.authorizedby IS NOT NULL
+	UNION ALL
+	SELECT
+		h.parentid,
+		ag.authorizationdate, 
+		ag.authorizationnote, 
+		ag.authorizedby
+	FROM public.authorizationgroup ag
+	JOIN public.hierarchy h ON (ag.id = h.id)
+	) x
+GROUP BY x.parentid, x.authorizationdate, x.authorizationnote, x.authorizedby
+HAVING count(*) = 1;
 
--- Insert new records into hierarchy table first, due to foreign key on authorizationgroup table to hierarchy.id:
+-- Insert new records into hierarchy table first, due to foreign key on authorizationgroup table:
 
 INSERT INTO public.hierarchy (
 	id, 
@@ -188,8 +230,11 @@ SELECT
 	authorizedby
 FROM authgrouptemp;
 
-/* Migrate uoc_common.startsingledate data to usedategroup table:
+
+/* 3) Migrate uoc_common.startsingledate data to usedategroup table:
 	
+-- NEW usedategroup table description:
+
 	                    Table "public.usedategroup"
 	         Column          |            Type             | Modifiers 
 	-------------------------+-----------------------------+-----------
@@ -204,7 +249,9 @@ FROM authgrouptemp;
 	Foreign-key constraints:
 	    "usedategroup_id_hierarchy_fk" FOREIGN KEY (id) REFERENCES hierarchy(id) ON DELETE CASCADE
 
-	Migrate/add the following from uoc_common to hierarchy:
+-- Migrate/add from uoc_common to hierarchy.
+-- The foreign key on the usedategroup table requires first adding new records to hierarchy.
+-- Use the uuid_generate_v4() function to generate a new type 4 UUID for the new record.
 
 	uuid_generate_v4()::varchar as id ====> hierarchy.id
 	uoc_common.id ========================> hierarchy.parentid
@@ -213,26 +260,37 @@ FROM authgrouptemp;
 	True =================================> hierarchy.isproperty
 	'useDateGroup' =======================> hierarchy.primarytype
 
-	Migrate the following from uoc_common to usedategroup:
+-- Migrate from uoc_common to usedategroup.
+-- Only add a new record when there is a value for startsingledate.
+-- Do not create empty records in usedategroup.
 
-	uuid_generate_v4()::varchar as id ==> usedategroup.id
+	hierarchy.id ==> usedategroup.id
 	uoc_common.startsingledate =========> usedategroup.usedate
-
-	Adding new records to the usedategroup table requires generating a UUID for the new records, as well as adding new reference records to the hierarchy table.
-
-	Only add a new record when there is a value for uoc_common.startsingledate.  Do not create empty records in usedategroup.
 
 */
 
 -- Create temp table to hold data for populating usedategroup and hierarchy tables:
 
-CREATE TEMP TABLE usedategrouptemp as
+CREATE TEMP TABLE usedategrouptemp AS
 SELECT
-	id as parentid,
-	uuid_generate_v4()::varchar as id,
-	startsingledate
-FROM public.uoc_common
-WHERE startsingledate IS NOT NULL;
+        uuid_generate_v4()::varchar AS id,
+        x.parentid,
+        x.usedate
+FROM (
+        SELECT
+                uc.id AS parentid,
+                uc.startsingledate AS usedate
+        FROM public.uoc_common uc
+        WHERE startsingledate IS NOT NULL;
+        UNION ALL
+        SELECT
+                h.parentid,
+                udg.usedate
+        FROM public.usedategroup udg
+        JOIN public.hierarchy h ON (udg.id = h.id)
+        ) x
+GROUP BY x.parentid, x.usedate
+HAVING count(*) = 1;
 
 -- Insert new records into hierarchy table first, due to foreign key on usedategroup table to hierarchy.id:
 
@@ -262,4 +320,4 @@ SELECT
 	startsingledate
 FROM usedategrouptemp;
 
--- End of V1 to V2 Migration
+-- END OF MIGRATION
