@@ -134,7 +134,7 @@ BEGIN
             LOOP
                 -- Get max pos value for the UOC record's Location field, and generate a new uuid:
 
-                SELECT CASE WHEN max(pos) IS NULL THEN -1 ELSE max(pos) END INTO maxpos
+                SELECT coalesce(max(pos), -1) INTO maxpos
                 FROM public.uoc_common_locationlist
                 WHERE id = trow.id;
 
@@ -228,7 +228,7 @@ BEGIN
                 -- Get max pos value for the UOC record's Authorization group, and generate a new uuid:
 
                 SELECT
-                    CASE WHEN max(pos) IS NULL THEN -1 ELSE max(pos) END,
+                    coalesce(max(pos), -1),
                     uuid_generate_v4()::varchar
                 INTO
                     maxpos,
@@ -349,7 +349,7 @@ BEGIN
                 -- Get max pos value for the UOC record's Use Date group, and generate a new uuid:
 
                 SELECT
-                    CASE WHEN max(pos) IS NULL THEN -1 ELSE max(pos) END,
+                    coalesce(max(pos), -1),
                     uuid_generate_v4()::varchar
                 INTO
                     maxpos,
