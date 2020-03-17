@@ -221,8 +221,8 @@ BEGIN
                     AND uc.authorizationdate IS NOT DISTINCT FROM ag.authorizationdate
                     AND uc.authorizationnote IS NOT DISTINCT FROM ag.authorizationnote
                 )
-            AND (authorizedby IS NOT NULL OR authorizationdate IS NOT NULL OR authorizationnote IS NOT NULL)
             )
+            AND (authorizedby IS NOT NULL OR authorizationdate IS NOT NULL OR authorizationnote IS NOT NULL)
 
             LOOP
                 -- Get max pos value for the UOC record's Authorization group, and generate a new uuid:
@@ -342,8 +342,8 @@ BEGIN
                     h.id = udg.id
                     AND uc.startsingledate IS NOT DISTINCT FROM ag.usedate
                 )
-            AND startsingledate IS NOT NULL
             )
+            AND startsingledate IS NOT NULL
 
             LOOP
                 -- Get max pos value for the UOC record's Use Date group, and generate a new uuid:
