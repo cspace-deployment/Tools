@@ -340,7 +340,7 @@ BEGIN
                 JOIN public.hierarchy h ON (uc.id = h.parentid)
                 JOIN public.usedategroup udg ON (
                     h.id = udg.id
-                    AND uc.startsingledate IS NOT DISTINCT FROM ag.usedate
+                    AND uc.startsingledate IS NOT DISTINCT FROM udg.usedate
                 )
             )
             AND startsingledate IS NOT NULL
