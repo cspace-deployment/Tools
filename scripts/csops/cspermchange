@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# This script resets roles from TENANT_READER to TENANT_ADMINISTRATOR for every user
+# with a name that includes (RTL_DEV). This is meant to be run against dev or qa tenants
+# after a db refresh from prod to grant developers admin privileges in dev or qa.
+# See JIRA Issue CC-792 and subtask CC-794
+
+# Set program paths
+CURL=/usr/bin/curl
+XMLLINT=/usr/bin/xmllint
+PERL=/usr/bin/perl
+
+# Set default user and pass
+ADMINUSER=""
+ADMINPASSWORD=""
+
+# Shouldn't need to modify anything below this point.
+VERBOSE=false
+
+while getopts ":t:u:p:v" opt; do
+  case ${opt} in
+     t)
+        TENANT=${OPTARG}
+        ;;
+     p)
+        ADMINPASSWORD=${OPTARG}
+        ;;
+     u)
+        ADMINUSER=${OPTARG}
+        ;;
+     v)
+        VERBOSE=true
+        ;;
+     ?)
+        echo "Usage: ${0##*/} [-v] [-u USER] [-p PASSWORD] [-t TENANT]"
+        echo ""
+        echo "This script resets roles from TENANT_READER to TENANT_ADMINISTRATOR for every user"
+        echo "with a name that includes (RTL_DEV). This is meant to be run against dev or qa tenants"
+        echo "after a db refresh from prod to grant developers admin privileges in dev or qa."
+        echo ""
+        echo "Script will prompt for any missing information.  You may also specify it via the arguments listed below."
+        echo ""
+        echo "Optional Arguments:"
+        echo "  -p, specify a password. Be wary of your command history when specifying passwords on the command line!"
+        echo ""
+        echo "  -t, specify a tenant. Tenant must be one of [bampfa,botgarden,cinefiles,pahma,ucjeps]-[dev,qa]."
+        echo "    For example, -t cinefiles-dev"
+        echo ""
+        echo "  -u, specify a user. Ideally one with admin rights."
+        echo ""
+        echo "  -v, verbose.  Will output more stuff."
+        echo ""
+        exit 1
+   esac
+done
+
+# Grab tenant from STDIN if it wasn't specified via -t
+if [ -z "$TENANT" ]
+then
+  read -p "Specify tenant:  " TENANT
+fi
+
+# Make sure that a valid TENANT was specified
+if [ "$TENANT" != "pahma-dev" ] && [ "$TENANT" != "pahma-qa" ] && [ "$TENANT" != "cinefiles-dev" ] && [ "$TENANT" != "cinefiles-qa" ] && [ "$TENANT" != "ucjeps-dev" ] && [ "$TENANT" != "ucjeps-qa" ] && [ "$TENANT" != "botgarden-dev" ] && [ "$TENANT" != "botgarden-qa" ] && [ "$TENANT" != "bampfa-dev" ] && [ "$TENANT" != "bampfa-qa" ]
+then
+  echo "You must specify a valid tenant! Valid tenants are [bampfa,botgarden,cinefiles,pahma,ucjeps]-[dev,qa]!" >&2
+  exit 1;
+fi
+
+# Grab user from STDIN if it wasn't specified via -u and wasn't set above
+if [ -z "$ADMINUSER" ]
+then
+  read -p "Specify user with role changing rights:  " ADMINUSER
+fi
+
+# Grab password from STDIN if it wasn't specified via -p and wasn't set above
+if [ -z "$ADMINPASSWORD" ]
+then
+  read -s -p "Enter password for $ADMINUSER @ $TENANT:  " ADMINPASSWORD
+  echo ""
+fi
+
+# Fetch CSIDs for the TENANT_READER and TENANT_ADMINISTRATOR roles
+if [ "$VERBOSE" = true ]
+then
+  TENANT_READER_CSID=`$CURL -sS -X GET -H "Content-Type: application/xml" "https://${TENANT}.cspace.berkeley.edu/cspace-services/authorization/roles" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath 'string(//role/displayName[.= "TENANT_READER"]/parent::role/@csid)' -`
+  TENANT_ADMINISTRATOR_CSID=`$CURL -sS -X GET -H "Content-Type: application/xml" "https://${TENANT}.cspace.berkeley.edu/cspace-services/authorization/roles" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath 'string(//role/displayName[.= "TENANT_ADMINISTRATOR"]/parent::role/@csid)' -`
+else
+  TENANT_READER_CSID=`$CURL -s -X GET -H "Content-Type: application/xml" "https://${TENANT}.cspace.berkeley.edu/cspace-services/authorization/roles" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath 'string(//role/displayName[.= "TENANT_READER"]/parent::role/@csid)' - 2> /dev/null`
+  TENANT_ADMINISTRATOR_CSID=`$CURL -s -X GET -H "Content-Type: application/xml" "https://${TENANT}.cspace.berkeley.edu/cspace-services/authorization/roles" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath 'string(//role/displayName[.= "TENANT_ADMINISTRATOR"]/parent::role/@csid)' - 2> /dev/null`
+fi
+
+if [ -z "$TENANT_READER_CSID" ] || [ -z "$TENANT_ADMINISTRATOR_CSID" ]
+then
+  echo "Could not fetch CSID for TENANT_READER or TENANT_ADMINISTRATOR role!  Please double check supplied credentials and try again!" >&2
+  exit 1
+fi
+
+# Fetch CSIDs for all (RTL_DEV) users that currently have TENANT_READER rights
+for CSID in `$CURL -s -X GET -H "Content-Type: application/xml" "https://${TENANT}.cspace.berkeley.edu/cspace-services/authorization/roles/${TENANT_READER_CSID}/accountroles" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath '//account[screenName[contains(.,"(RTL_DEV)")]]/accountId' - 2> /dev/null | $PERL -pe 's/<accountId>(.*?)<\/accountId>/$1\n/g'`
+do
+  USERID=""
+  # Fetch userId (email address) for each user CSID since it's required in the role change API call
+  if [ "$VERBOSE" = true ]
+  then
+    USERID=`$CURL -sS -X GET -H "Content-Type: application/xml" "https://{$TENANT}.cspace.berkeley.edu/cspace-services/accounts/$CSID" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath 'string(//userId)' -`
+  else
+    USERID=`$CURL -s -X GET -H "Content-Type: application/xml" "https://{$TENANT}.cspace.berkeley.edu/cspace-services/accounts/$CSID" -u $ADMINUSER:$ADMINPASSWORD | $XMLLINT --xpath 'string(//userId)' - 2> /dev/null`
+  fi
+
+  if [ -z "$USERID" ]
+  then
+    echo "Could not fetch userId for user with CSID $CSID, aborting!" >&2
+    exit 1;
+  fi
+
+  # XML template for role updates
+  read -r -d '' CURLINPUT << EOM
+<?xml version='1.0' encoding='UTF-8'?>
+<ns2:accounts_common
+    xmlns:ns2="http://collectionspace.org/services/account"
+    xmlns:ns3="http://collectionspace.org/services/jaxb">
+
+    <userId>${USERID}</userId>
+    <roleList>
+        <role>
+            <roleId>${TENANT_ADMINISTRATOR_CSID}</roleId>
+        </role>
+    </roleList>
+</ns2:accounts_common>
+EOM
+
+  # API call that uses the above template to assign TENANT_ADMINISTRATOR role privileges for each (RTL_DEV) user
+  echo "Changing role for:  $CSID $USERID"
+
+  if [ "$VERBOSE" = true ]
+  then
+    $CURL -sS -u $ADMINUSER:$ADMINPASSWORD -i -H "Content-Type: application/xml" -X PUT --data "${CURLINPUT}" "https://${TENANT}.cspace.berkeley.edu/cspace-services/accounts/$CSID"
+    echo ""
+  else
+    $CURL -s -u $ADMINUSER:$ADMINPASSWORD -i -H "Content-Type: application/xml" -X PUT --data "${CURLINPUT}" "https://${TENANT}.cspace.berkeley.edu/cspace-services/accounts/$CSID" > /dev/null
+  fi
+done
+
+if [ -z "$CSID" ]
+then
+  echo "Found no users that needed updating!"
+  exit 0
+fi
+
+exit 0
