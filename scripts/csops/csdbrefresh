@@ -1,0 +1,188 @@
+#!/usr/bin/bash
+
+# cspace_tools home dir
+CSPACE_TOOLS_HOME=/home/cspace_tools
+
+# default location of db dump files
+DBDUMPSDIR=$CSPACE_TOOLS_HOME/dbdumps
+
+# location of cspace tools executables
+BINDIR=$CSPACE_TOOLS_HOME/bin
+
+PG_RESTORE=$BINDIR/pg_restore
+DROPDB=$BINDIR/dropdb
+CREATEDB=$BINDIR/createdb
+CSNAME=$BINDIR/csname
+CSENV=$BINDIR/csenv
+
+# postgresql binaries need a matching copy of their libraries
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CSPACE_TOOLS_HOME/postgresql/lib
+
+# needed to quietly check if cspace is down prior to doing a refresh
+SYSTEMCTL=/usr/bin/systemctl
+
+# dev/qa are both on the same db server
+DBSERVER=dba-postgres-dev-45.ist.berkeley.edu
+
+# instance port assignments
+CSPACEDEV=5114
+CSPACEQA=5113
+PAHMADEV=5117
+PAHMAQA=5107
+UCJEPSDEV=5119
+UCJEPSQA=5110
+
+# Should not have to change anything under here
+VERBOSE="false"
+FORCE="false"
+PORT=0
+NUXEO_USER=""
+CSPACE_USER=""
+NUXEO_DB=""
+CSPACE_DB=""
+TENANT=""
+ENV=""
+
+while getopts ":d:e:ft:v" opt; do
+  case ${opt} in
+     d)
+        DBDUMPSDIR=${OPTARG}
+        ;;
+     e)
+        ENV=${OPTARG}
+        ;;
+     f)
+        FORCE="true"
+        ;;
+     t)
+        TENANT=${OPTARG}
+        ;;
+     v)
+        VERBOSE="true"
+        ;;
+     ?)
+        echo "Usage: ${0##*/} [-d] [-f] [-v] [-e ENVIRONMENT] [-t TENANT]" >&2
+        echo "" >&2
+        echo "This script refreshes the databases for a tenant.  Generally it should be run via the app_TENANT's shell." >&2
+        echo "In the typical case no arguments should be required." >&2
+        echo "" >&2
+        echo "Optional Arguments:" >&2
+        echo "  -d, specify a db dumps directory." >&2
+        echo "" >&2
+        echo "  -e, specify an environment. Environment must be one of [dev,qa].  -f must also be specified." >&2
+        echo "    For example, -e dev -f" >&2
+        echo "" >&2
+        echo "  -f, force. Skips checking if instance is down.  Required if -e is specified." >&2
+        echo "" >&2
+        echo "  -t, specify a tenant. Tenant must be one of [bampfa,botgarden,cinefiles,core,lyrasis,pahma,ucjeps]." >&2
+        echo "    For example, -t cinefiles" >&2
+        echo "" >&2
+        echo "  -v, verbose.  Will output more stuff." >&2
+        echo "" >&2
+        exit 1
+   esac
+done
+
+# Require -f if -e is specified
+if [ ! -z "$ENV" ] && [ "$FORCE" == "false" ]
+then
+  echo "You must specify -f to use this option!" >&2
+  exit 1
+fi
+
+if [ -z "$ENV" ]
+then
+  ENV=`$CSENV`
+  ENV=${ENV//$'\n'/}
+fi
+
+if [ -z "$TENANT" ]
+then
+  TENANT=`$CSNAME`
+  TENANT=${TENANT//$'\n'/}
+fi
+
+# Make sure that a valid environment was specified
+if [ "$ENV" != "qa" ] && [ "$ENV" != "dev" ]
+then
+  echo "You must specify a valid environment!  Vald environments are [dev,qa]!" >&2
+  exit 1
+fi
+
+# Make sure that a valid TENANT was specified and assign port
+if [ "$TENANT" == "pahma" ]
+then
+  if [ "$ENV" == "dev" ]
+  then
+    PORT=$PAHMADEV
+  else
+    PORT=$PAHMAQA
+  fi
+elif [ "$TENANT" == "ucjeps" ]
+then
+  if [ "$ENV" == "dev" ]
+  then
+    PORT=$UCJEPSDEV
+  else
+    PORT=$UCJEPSQA
+  fi
+elif [ "$TENANT" == "cinefiles" ] || [ "$TENANT" == "botgarden" ] || [ "$TENANT" == "bampfa" ] || [ "$TENANT" == "core" ] || [ "$TENANT" == "lyrasis" ]
+then
+  if [ "$ENV" == "dev" ]
+  then
+    PORT=$CSPACEDEV
+  else
+    PORT=$CSPACEQA
+  fi
+else
+  echo "You must specify a valid tenant! Valid tenants are [bampfa,botgarden,cinefiles,pahma,ucjeps,core,lyrasis]!" >&2
+  exit 1;
+fi
+
+if $SYSTEMCTL --quiet is-active tomcat@${TENANT} || $SYSTEMCTL --quiet is-active tomcat8@${TENANT} && [ "$FORCE" == "false" ]
+then
+  echo "${TENANT} is running, aborting!" >&2
+  exit 1;
+fi
+
+CSPACE_USER="cspace_${TENANT}"
+NUXEO_USER="nuxeo_${TENANT}"
+CSPACE_DB="$CSPACE_USER"
+NUXEO_DB="${TENANT}_domain_${TENANT}"
+
+if [ -f "$DBDUMPSDIR/$CSPACE_DB.dump" ] && [ -f "$DBDUMPSDIR/$NUXEO_DB.dump" ]
+then
+  if [ "$VERBOSE" == "false" ]
+  then
+    echo "DROPPING $CSPACE_DB========================================="
+    $DROPDB --host=$DBSERVER --port=$PORT --username=$CSPACE_USER $CSPACE_DB
+    echo "CREATING $CSPACE_DB========================================="
+    $CREATEDB --host=$DBSERVER --port=$PORT --username=$CSPACE_USER $CSPACE_DB
+    echo "RESTORING $CSPACE_DB========================================="
+    $PG_RESTORE --host=$DBSERVER --port=$PORT --username=$CSPACE_USER --jobs=2 -d $CSPACE_DB $DBDUMPSDIR/$CSPACE_DB.dump
+
+    echo "DROPPING $NUXEO_DB========================================="
+    $DROPDB --host=$DBSERVER --port=$PORT --username=$NUXEO_USER $NUXEO_DB
+    echo "CREATING $NUXEO_DB========================================="
+    $CREATEDB --host=$DBSERVER --port=$PORT --username=$NUXEO_USER $NUXEO_DB
+    echo "RESTORING $NUXEO_DB========================================="
+    $PG_RESTORE --host=$DBSERVER --port=$PORT --username=$NUXEO_USER --jobs=2 -d $NUXEO_DB $DBDUMPSDIR/$NUXEO_DB.dump
+  else
+    echo "DROPPING $CSPACE_DB========================================="
+    $DROPDB --echo --host=$DBSERVER --port=$PORT --username=$CSPACE_USER $CSPACE_DB
+    echo "CREATING $CSPACE_DB========================================="
+    $CREATEDB --echo --host=$DBSERVER --port=$PORT --username=$CSPACE_USER $CSPACE_DB
+    echo "RESTORING $CSPACE_DB========================================="
+    $PG_RESTORE --verbose --host=$DBSERVER --port=$PORT --username=$CSPACE_USER --jobs=2 -d $CSPACE_DB $DBDUMPSDIR/$CSPACE_DB.dump
+
+    echo "DROPPING $NUXEO_DB========================================="
+    $DROPDB --echo --host=$DBSERVER --port=$PORT --username=$NUXEO_USER $NUXEO_DB
+    echo "CREATING $NUXEO_DB========================================="
+    $CREATEDB --echo --host=$DBSERVER --port=$PORT --username=$NUXEO_USER $NUXEO_DB
+    echo "RESTORING $NUXEO_DB========================================="
+    $PG_RESTORE --verbose --host=$DBSERVER --port=$PORT --username=$NUXEO_USER --jobs=2 -d $NUXEO_DB $DBDUMPSDIR/$NUXEO_DB.dump
+  fi
+else
+  echo "Cannot find $DBDUMPSDIR/$CSPACE_DB.dump or $DBDUMPSDIR/$NUXEO_DB.dump!" >&2
+  exit 1
+fi
