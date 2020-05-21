@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Print the server environment.
+
+ENVIRONMENT=${HOSTNAME#cspace-}
+ENVIRONMENT=${ENVIRONMENT%-*}
+
+echo $ENVIRONMENT
