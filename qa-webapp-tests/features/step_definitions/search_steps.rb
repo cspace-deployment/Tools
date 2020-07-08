@@ -24,16 +24,16 @@ end
 
 Then(/^I click on "(.*?)" in the dropdown menu and search$/) do |text|
     choose_autocomplete(text)
-    click_button "Search"
-    sleep(5)
+    click_button "List"
+    expect(page).to have_content("results are available")
 end
 
-Then(/^I verify the search fields "(.*?)" in "(.*?)"$/) do |field, range|
-    fields = field.split(', ')
+Then(/^I verify the search fields "(.*?)" in "(.*?)"$/) do |fields, range|
     within(range) do
-        for i in fields
-            find('label', text: i).has_content? i
-        end
+      actual_content = all('tr td label').map(&:text)
+      for item in fields.split(', ') do
+        expect(actual_content).to include(item)
+      end
     end
 end
 
@@ -42,11 +42,11 @@ end
 #     number.to_i
 # end
 
-Then(/^I verify the table headers "(.*?)"$/) do |items| 
-    within('div#resultsPanel') do
-        @table = all('#resultsListing tr')
+Then(/^I verify the table headers "(.*?)"$/) do |items|
+    within('table#resultsListing') do
+        table_header = all('tr th').map(&:text)
         for item in items.split(', ') do
-            expect(@table[0]).to have_content(item)
+            expect(table_header).to include(item)
         end 
     end
 end
@@ -54,20 +54,25 @@ end
 Then(/^I will click the arrows to toggle between pages$/) do
     within("div#searchfieldsTarget") do
         find_link('next').click
-        sleep(5)
-        screenshot_and_open_image
+        expect(page).to have_content("Keyword")
+        # screenshot_and_open_image
         find_link('prev').click
+        expect(page).to have_content("Keyword")
     end
 end
 
 Then (/^I click the button "(.*?)" and download the csv file$/) do |button|
     click_button(button)
-end 
+end
+
+Then (/^I click the button "(.*?)"$/) do |button|
+    click_button(button)
+end
 
 Then(/^I will click the up and down arrows beside the headers without knowing table name$/) do
     page.all("tablesorter-headerRow").each do |arrow|
         arrow.click
-        screenshot_and_open_image
+        # screenshot_and_open_image
     end
 end
 
@@ -93,9 +98,9 @@ Then(/^the url contains "([^"]*)"$/) do |url|
     new_window = window_opened_by { click_button 'map selected with Berkeley Mapper'}
     within_window(new_window) do
         actual = URI.parse(current_url).path
-        actual.include?("berkeleymapper.berkeley.edu/")
+        expect(actual).to include("berkeleymapper.berkeley.edu/")
         page.all("pointDisplayValue").any?
-        screenshot_and_open_image
+        # screenshot_and_open_image
     end
     if Capybara.current_driver == :poltergeist
         page.driver.browser.switch_to_window(page.driver.browser.window_handles[0])
@@ -108,7 +113,7 @@ Then(/^I will select "([^"]*)" under Select field to summarize on$/) do |field|
     click_link('Statistics')
     select(field, :from => 'summarizeon')
     click_button("Display Summary")
-    expect(page).to have_table('statsListing')
+    # expect(page).to have_table('statsListing')
 end
 
 Then(/^I will click "(.*?)" and the "([^"]*)" field should have "([^"]*)"$/) do |button, field, result|
@@ -119,7 +124,7 @@ end
 
 And(/^I verify the contents of the page$/) do 
     # Screenshot appears; please verify the results are in Full display
-    screenshot_and_open_image
+    # screenshot_and_open_image
 end
 
 Then(/^I mark the checkboxes "(.*?)"$/) do |boxes|

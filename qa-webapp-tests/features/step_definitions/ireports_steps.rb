@@ -4,12 +4,8 @@ end
 
 Then(/^I will see the correct report in pdf format$/) do 
     # Screenshot appears; please verify the results of the Search for Images.
-    screenshot_and_open_image
+    #  screenshot_and_open_image
     page.evaluate_script('window.history.back()')
-end
-
-Then(/^I click "([^"]*)"$/) do |button|
-    find(:xpath, "//div[@id='header']//a[@id='#{button}']").click
 end
 
 Then(/^I click the link with text "([^"]*)"$/) do |link_text|
