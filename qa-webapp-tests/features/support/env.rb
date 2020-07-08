@@ -1,57 +1,69 @@
-require 'rubygems'
 require 'selenium-webdriver'
-require 'capybara'
 require 'capybara/cucumber'
+require 'rspec/expectations'
 require 'capybara-screenshot/cucumber'
+require 'pry'
 require File.expand_path('../custom_config', __FILE__)
 include CustomConfig
 
-Capybara.default_driver = :selenium
-Capybara.default_max_wait_time = 5
+Capybara.register_driver(:headless_chrome) do |app|
+  capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
+    chromeOptions: { args: %w[headless no-sandbox disable-gpu] }
+  )
 
-# To override default settings in the capybara-screenshot gem: 
+  Capybara::Selenium::Driver.new(
+    app,
+    browser: :chrome,
+    desired_capabilities: capabilities
+  )
+end
+
+Capybara.register_driver :headless_firefox do |app|
+  browser_options = Selenium::WebDriver::Firefox::Options.new()
+  browser_options.args << '--headless'
+
+  Capybara::Selenium::Driver.new(
+    app,
+    browser: :firefox,
+    options: browser_options
+  )
+end
+
+Capybara.register_driver :chrome do |app|
+    Capybara::Selenium::Driver.new(app, browser: :chrome)
+  end
+
+Capybara.register_driver :firefox do |app|
+    Capybara::Selenium::Driver.new(app, browser: :firefox)
+end
+
+Capybara::Screenshot.register_driver(:headless_firefox) do |driver, path|
+  driver.browser.save_screenshot path
+end
+
+Capybara::Screenshot.register_driver(:headless_chrome) do |driver, path|
+  driver.browser.save_screenshot path
+end
+
+Capybara.configure do |config|
+  config.run_server = false
+
+  case ENV['DRIVER']
+      when "headless_chrome"
+        config.default_driver = :headless_chrome
+      when "headless_firefox"
+        config.default_driver = :headless_firefox
+      else
+        config.default_driver = :headless_firefox
+      end
+
+end
+
+# To override default settings in the capybara-screenshot gem:
 Capybara.save_path = "tmp/capybara"
 # To keep only the screenshots generated from the last failing test suite
 Capybara::Screenshot.prune_strategy = :keep_last_run
 
-#########################################################################################
-# Uncomment below to use the Selenium webdriver with 'headless'
-# Note that this only works for Linux machines due to X graphics.
-#########################################################################################
-#if Capybara.current_driver == :selenium
-#  require 'headless'
-#  headless = Headless.new
-#  headless.start
-#end
-
-#########################################################################################
-# Uncomment below to use the Poltergeist webdriver. 
-# Tested successfully on OS X and Linux.
-#########################################################################################
-#require 'capybara/poltergeist'
-#Capybara.register_driver :poltergeist do |app|
-#  Capybara::Poltergeist::Driver.new(app, :timeout => 45, :js_errors =>false)
-#end
-#Capybara.default_driver = :poltergeist
-
-#########################################################################################
-# Uncomment below to use the capybara-webkit webdriver.
-# Tested on OS X and Linux but requires changing some of the test suites. 
-# More info at README.md 
-#########################################################################################  
-# require 'capybara-webkit'
-# Capybara::Webkit.configure do |config|
-#   config.allow_unknown_urls
-#   config.timeout = 45
-# end
-# Capybara.default_driver = :webkit
-
-##########################################################################
-# Uncomment the code below to run tests on chrome. More info at README.md
-##########################################################################
-Capybara.register_driver :chrome do |app|
-  Capybara::Selenium::Driver.new(app, :browser => :chrome)
-end
-Capybara.javascript_driver = :chrome
+Capybara.javascript_driver = :headless_firefox
 
 World(Capybara)
