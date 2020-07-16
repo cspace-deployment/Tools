@@ -59,7 +59,7 @@ if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
 
       echo ""
       echo "Copying localhost logs to PDG Team Drive $DEST"
-      for log in $(/bin/ls -c1 -t $HOME/log/tomcat/localhost_access_log.*txt | /bin/head -2); do
+      for log in $(/bin/ls -c1 -t $CATALINA_HOME/logs/localhost_access_log.*txt | /bin/head -2); do
          rclone copy -P $log heapdumps:$DEST
       done
 
@@ -74,7 +74,7 @@ if [ ! -f $HOME/heap.dump ]  && [ ! -f $HOME/heap.dump.gz ]; then
       fi
       /bin/gzip -q $HOME/heap.dump > /dev/null 2>&1
       rclone copy -q $HOME/heap.dump.gz heapdumps:$DEST > /dev/null 2>&1
-      for log in $(/bin/ls -c1 -t $HOME/log/tomcat/localhost_access_log.*txt | /bin/head -2); do
+      for log in $(/bin/ls -c1 -t $CATALINA_HOME/logs/localhost_access_log.*txt | /bin/head -2); do
          rclone copy -q $log heapdumps:$DEST > /dev/null 2>&1
       done
 

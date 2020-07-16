@@ -3,6 +3,6 @@
 # Print the name of the CollectionSpace tomcat service for the current user.
 
 DEPLOYMENT_NAME=`~/bin/csname`
-SERVICE_NAME=tomcat@${DEPLOYMENT_NAME/_/-}
+SERVICE_NAME=tomcat8@${DEPLOYMENT_NAME/_/-}
 
 echo $SERVICE_NAME
