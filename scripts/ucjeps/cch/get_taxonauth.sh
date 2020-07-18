@@ -45,7 +45,7 @@ cd $AUTH_DIR
 
 date >> $AUTH_LOG
 
-psql -h dba-postgres-prod-42.ist.berkeley.edu -p 5310 -d ucjeps_domain_ucjeps -U reporter_ucjeps << HP_END >> $AUTH_LOG
+psql -h dba-postgres-prod-45.ist.berkeley.edu -p 5310 -d ucjeps_domain_ucjeps -U reporter_ucjeps << HP_END >> $AUTH_LOG
 
 create temp table tmp_taxon_auth as
 select

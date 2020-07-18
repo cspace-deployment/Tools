@@ -10,7 +10,7 @@ CCH_LOG=$HOMEDIR/cch/cch_extract.log
 
 date >> $CCH_LOG
 
-psql -h dba-postgres-prod-42.ist.berkeley.edu -p 5310 -d ucjeps_domain_ucjeps -U reporter_ucjeps << HP_END >> $CCH_LOG
+psql -h dba-postgres-prod-45.ist.berkeley.edu -p 5310 -d ucjeps_domain_ucjeps -U reporter_ucjeps << HP_END >> $CCH_LOG
 
 create temp table tmp_cch_accessions as
 select
