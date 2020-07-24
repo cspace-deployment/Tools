@@ -3,6 +3,10 @@
 # Print the name of the CollectionSpace tomcat service for the current user.
 
 DEPLOYMENT_NAME=`~/bin/csname`
-SERVICE_NAME=tomcat8@${DEPLOYMENT_NAME/_/-}
+if [[ "$CATALINA_HOME" == *"tomcat8"* ]]; then
+   SERVICE_NAME=tomcat8@${DEPLOYMENT_NAME/_/-}
+else
+   SERVICE_NAME=tomcat@${DEPLOYMENT_NAME/_/-}
+fi
 
 echo $SERVICE_NAME
