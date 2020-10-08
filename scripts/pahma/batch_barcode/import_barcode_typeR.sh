@@ -381,5 +381,5 @@ do
     sleep 0s
 done
 
-mail -s "${SUBJECT}" "${EMAIL}" < ${ELEMENT_LOG}
+/usr/bin/mail -s "${SUBJECT}" "${EMAIL}" < ${ELEMENT_LOG}
 exit 0
