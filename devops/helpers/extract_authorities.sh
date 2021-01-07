@@ -16,8 +16,8 @@
 SCRIPTPATH=`dirname $0`
 
 # set these to appropriate cspace login and password
-CREDS="xxxxx@ucjeps.cspace.berkeley.edu:xxxxx"
-SERVER="https://ucjeps.cspace.berkeley.edu"
+eval `grep CREDS  /var/www/ucjeps/config/authextract.cfg`
+eval `grep SERVER /var/www/ucjeps/config/authextract.cfg`
 # number of records get get
 PAGESIZE=1000
 # maximum number of cURLs to issue
@@ -36,8 +36,24 @@ HERE
 
    PAGENUM=0
    while [ $MAXCURLS -gt 0 ]; do
-       curl -S -s -u "${CREDS}" -o /tmp/tmp.xml "${SERVER}/cspace-services/$1/items?pgSz=${PAGESIZE}&pgNum=${PAGENUM}&wf_deleted=false"
 
+       if ! curl -S -s -u "${CREDS}" -o /tmp/tmp.xml "${SERVER}/cspace-services/$1/items?pgSz=${PAGESIZE}&pgNum=${PAGENUM}&wf_deleted=false"
+       then
+           echo ERROR: cURL failed.
+           echo "curl -S -s -u \"CREDS\" -o /tmp/tmp.xml \"${SERVER}/cspace-services/$1/items?pgSz=${PAGESIZE}&pgNum=${PAGENUM}&wf_deleted=false\""
+           cat /tmp/tmp.xml
+           echo
+           exit 1
+        fi
+
+       if ! grep -q "<itemsInPage>" /tmp/tmp.xml
+       then
+           echo ERROR: unexpected XML returned.
+           echo "curl -S -s -u \"CREDS\" -o /tmp/tmp.xml \"${SERVER}/cspace-services/$1/items?pgSz=${PAGESIZE}&pgNum=${PAGENUM}&wf_deleted=false\""
+           cat /tmp/tmp.xml
+           echo
+           exit 1
+       fi
 
        if grep -q "<itemsInPage>0</itemsInPage>" /tmp/tmp.xml
        then
@@ -49,12 +65,15 @@ HERE
 
        MAXCURLS=`expr $MAXCURLS - 1`
        PAGENUM=`expr $PAGENUM + 1`
-       echo "Page ${PAGENUM}"
+       printf '%s ' "${PAGENUM}"
 
     done
+    echo
+    echo done with $1
 
    xmllint --format /tmp/new1.xml > $2
    rm /tmp/tmp.xml /tmp/new1.xml
+   echo created $2
 }
 
 
