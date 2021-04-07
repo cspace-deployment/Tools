@@ -42,7 +42,7 @@ end as gardeninfo,
 case when lb.hortwild='Horticultural' then 'Horticultural voucher:'
      when lb.hortwild='Wild' then 'Wild voucher:'
 end as vouchertype,
-lb.fieldcollectionnote,
+regexp_replace(lb.fieldcollectionnote, '(North America|South America|Central America|Europe|Asia|Africa), *', '') as fieldcollectionnote,
 lb.annotation,
 case when (lbc.item is not null and lbc.item <> '' and lc.loanoutdate is not null)
       then regexp_replace(lbc.item, '^.*\)''(.*)''$', '\1')||', '||to_char(date(lc.loanoutdate + interval '8 hours'), 'MM/dd/yyyy')
