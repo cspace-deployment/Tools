@@ -1,0 +1,4 @@
+# for pahma storage locations
+nohup time python updateLocations.py locationauthorities/d65c614a-e70e-441b-8855 kroeber-prod-location-update.cfg storagelocations.csv locations &
+# for pahma crate locations
+nohup time python updateLocations.py locationauthorities/e8069316-30bf-4cb9-b41d kroeber-prod-location-update.cfg containers.csv locations &
