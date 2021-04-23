@@ -159,7 +159,7 @@ while True:
             </locTermGroup>
             '''
             xml_string = ET.tostring(cspaceObject).decode('utf-8')
-            url = f'{SERVER}/cspace-services{uri}'
+            url = f'{SERVER}/cspace-services{uri}?impTimeout=900'
             headers = {'Content-Type': 'application/xml'}
             r = requests.put(url, data=xml_string, headers=headers, auth=credentials)
             if r.status_code != 200:
