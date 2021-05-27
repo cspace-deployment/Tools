@@ -1,0 +1,17 @@
+name	imageOK	isImage	sizeOK	syntaxOK	notUpsideDown	notFuzzy	notDark	average	OrientationOK	imagesize	filesize	updatedAt	updatedby	format	mode	compression	dpi	csid	fullpathtofile
+UC1058811.JPG	True	True	True	True	True	True	True	48012	True	(366, 549)	75340			JPEG	RGB		(72, 72)		images/UC1058811.JPG
+UC1058817.JPG	True	True	True	True	True	True	True	46190	True	(366, 549)	103173			JPEG	RGB		(72, 72)		images/UC1058817.JPG
+UpsideDownandTooDark.JPG	False	True	True	True	True	True	False	35072	True	(4480, 6720)	17212692			JPEG	RGB		(350, 350)		images/UpsideDownandTooDark.JPG
+empty.file	False	True	False	True	True	True	False	0	True	(4480, 6720)	0			JPEG	RGB		(350, 350)		images/empty.file
+rotated.JPG	False	True	True	True	True	True	True	45610	False	(6240, 4160)	4227144			JPEG	RGB		(350, 350)		images/rotated.JPG
+slightlytoodark.jpeg	True	True	True	True	True	True	True	47795	True	(3840, 5760)	3799419			JPEG	RGB		(350, 350)		images/slightlytoodark.jpeg
+tooblurry1.JPG	True	True	True	True	True	True	True	49587	True	(4480, 6720)	4468920			JPEG	RGB		(350, 350)		images/tooblurry1.JPG
+tooblurry2.JPG	False	True	True	True	True	True	False	39467	True	(3840, 5760)	9197580			JPEG	RGB		(350, 350)		images/tooblurry2.JPG
+tooblurry3.JPG	False	True	True	True	True	True	False	40793	True	(3840, 5760)	3627622			JPEG	RGB		(350, 350)		images/tooblurry3.JPG
+tooblurry4.JPG	True	True	True	True	True	True	True	48937	True	(3744, 5616)	8995557			JPEG	RGB		(350, 350)		images/tooblurry4.JPG
+toodark2.JPG	False	True	True	True	True	True	False	40832	True	(3744, 5616)	6503372			JPEG	RGB		(350, 350)		images/toodark2.JPG
+toodark3.JPG	False	True	True	True	True	True	False	35132	True	(4480, 6720)	15154320			JPEG	RGB		(350, 350)		images/toodark3.JPG
+toodark4.JPG	False	True	True	True	True	True	False	43558	True	(3744, 5616)	5784625			JPEG	RGB		(350, 350)		images/toodark4.JPG
+toodark5.JPG	False	True	True	True	True	True	False	39679	True	(3744, 5616)	5979388			JPEG	RGB		(350, 350)		images/toodark5.JPG
+toodark6.JPG	False	True	True	True	True	True	False	33664	True	(4480, 6720)	17500935			JPEG	RGB		(350, 350)		images/toodark6.JPG
+toodark7.JPG	False	True	True	True	True	True	False	37622	True	(3744, 5616)	7865988			JPEG	RGB		(350, 350)		images/toodark7.JPG

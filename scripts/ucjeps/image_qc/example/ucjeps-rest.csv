@@ -1,0 +1,11 @@
+name	imageOK	isImage	sizeOK	syntaxOK	notUpsideDown	notFuzzy	notDark	average	OrientationOK	imagesize	filesize	updatedAt	updatedby	format	mode	compression	dpi	csid	fullpathtofile
+UC1926039.JPG	True	True	True	True	True	True	True	46535	True	(666, 999)	599373	2021-05-21T21:48:13.896Z		JPEG	RGB		(350, 350)	9c22b980-2b3f-4a09-8d89	/tmp/imagefile
+UC1386477.JPG	True	True	True	True	True	True	True	48230	True	(666, 999)	597320	2021-05-21T21:48:12.493Z		JPEG	RGB		(350, 350)	7b08c7d4-e781-4140-b58e	/tmp/imagefile
+UC1548399.JPG	True	True	True	True	True	True	True	52311	True	(666, 999)	489294	2021-05-21T21:48:11.234Z		JPEG	RGB		(350, 350)	f3604d7d-c757-422d-a93d	/tmp/imagefile
+UC1546307.JPG	True	True	True	True	True	True	True	45409	True	(666, 999)	688302	2021-05-21T21:48:09.828Z		JPEG	RGB		(350, 350)	bbd8d5d9-ffad-46d4-9a61	/tmp/imagefile
+UC693595.JPG	True	True	True	True	True	True	True	50024	True	(666, 999)	563064	2021-05-21T21:48:08.324Z		JPEG	RGB		(350, 350)	f44fb987-1934-4bf0-912a	/tmp/imagefile
+UC1044172.JPG	True	True	True	True	True	True	True	50231	True	(666, 999)	568940	2021-05-21T21:48:06.859Z		JPEG	RGB		(350, 350)	10f1d035-c030-443c-af2e	/tmp/imagefile
+UC1077727.JPG	True	True	True	True	True	True	True	49736	True	(666, 999)	536478	2021-05-21T21:48:05.350Z		JPEG	RGB		(350, 350)	de875f00-b42d-4ff8-a350	/tmp/imagefile
+UC963342.JPG	True	True	True	True	True	True	True	47183	True	(666, 999)	617547	2021-05-21T21:48:03.764Z		JPEG	RGB		(350, 350)	31b50b4a-b55d-41f8-8b43	/tmp/imagefile
+UC1078126.JPG	True	True	True	True	True	True	True	47222	True	(666, 999)	641552	2021-05-21T21:48:01.978Z		JPEG	RGB		(350, 350)	eca84631-d0c5-41fe-864f	/tmp/imagefile
+UC2017522.JPG	True	True	True	True	True	True	True	49511	True	(666, 999)	553988	2021-05-21T21:48:00.510Z		JPEG	RGB		(350, 350)	990db465-79da-4a5d-af1b	/tmp/imagefile
