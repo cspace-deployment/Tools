@@ -309,7 +309,7 @@ def doChecks(args):
                 search_terms = 'collectionspace_core:updatedAt >= TIMESTAMP "%s" AND collectionspace_core:updatedAt <= TIMESTAMP "%s"'
                 search_terms = search_terms % (start_date_timestamp, end_date_timestamp)
                 search_terms = urllib.parse.quote_plus(search_terms)
-                url = 'https://%s/cspace-services/blobs?as=%s&%s' % (hostname, search_terms, 'pgSz=%s&wf_deleted=false&pgNum=%s' % (10,1))
+                url = 'https://%s/cspace-services/blobs?as=%s&%s' % (hostname, search_terms, 'pgSz=%s&wf_deleted=false&pgNum=%s' % (7000,1))
                 response = requests.get(url, auth=HTTPBasicAuth(username, password))
                 xml = response.content
                 if response.status_code != 200:
